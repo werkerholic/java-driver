@@ -336,7 +336,8 @@ class Responses {
                     // The order of that enum matters!!
                     GLOBAL_TABLES_SPEC,
                     HAS_MORE_PAGES,
-                    NO_METADATA;
+                    NO_METADATA,
+                    METADATA_CHANGED;
 
                     static EnumSet<Flag> deserialize(int flags) {
                         EnumSet<Flag> set = EnumSet.noneOf(Flag.class);
@@ -356,14 +357,16 @@ class Responses {
                     }
                 }
 
-                static final Metadata EMPTY = new Metadata(0, null, null, null);
+                static final Metadata EMPTY = new Metadata(null, 0, null, null, null);
 
                 final int columnCount;
                 final ColumnDefinitions columns; // Can be null if no metadata was asked by the query
                 final ByteBuffer pagingState;
                 final int[] pkIndices;
+                final MD5Digest metadataId; // only present if the flag METADATA_CHANGED is set (ROWS response only)
 
-                private Metadata(int columnCount, ColumnDefinitions columns, ByteBuffer pagingState, int[] pkIndices) {
+                private Metadata(MD5Digest metadataId, int columnCount, ColumnDefinitions columns, ByteBuffer pagingState, int[] pkIndices) {
+                    this.metadataId = metadataId;
                     this.columnCount = columnCount;
                     this.columns = columns;
                     this.pagingState = pagingState;
@@ -380,6 +383,13 @@ class Responses {
                     EnumSet<Flag> flags = Flag.deserialize(body.readInt());
                     int columnCount = body.readInt();
 
+                    MD5Digest resultMetadataId = null;
+                    if (flags.contains(Flag.METADATA_CHANGED)) {
+                        assert protocolVersion == ProtocolVersion.V5 : "METADATA_CHANGED flag is supported starting from v5";
+                        assert !flags.contains(Flag.NO_METADATA) : "METADATA_CHANGED and NO_METADATA are mutually exclusive flags";
+                        resultMetadataId = MD5Digest.wrap(CBUtil.readBytes(body));
+                    }
+
                     int[] pkIndices = null;
                     int pkCount;
                     if (withPkIndices && (pkCount = body.readInt()) > 0) {
@@ -393,7 +403,7 @@ class Responses {
                         state = CBUtil.readValue(body);
 
                     if (flags.contains(Flag.NO_METADATA))
-                        return new Metadata(columnCount, null, state, pkIndices);
+                        return new Metadata(resultMetadataId, columnCount, null, state, pkIndices);
 
                     boolean globalTablesSpec = flags.contains(Flag.GLOBAL_TABLES_SPEC);
 
@@ -414,7 +424,7 @@ class Responses {
                         defs[i] = new ColumnDefinitions.Definition(ksName, cfName, name, type);
                     }
 
-                    return new Metadata(columnCount, new ColumnDefinitions(defs, codecRegistry), state, pkIndices);
+                    return new Metadata(resultMetadataId, columnCount, new ColumnDefinitions(defs, codecRegistry), state, pkIndices);
                 }
 
                 @Override
@@ -506,10 +516,13 @@ class Responses {
                 @Override
                 public Result decode(ByteBuf body, ProtocolVersion version, CodecRegistry codecRegistry) {
                     MD5Digest id = MD5Digest.wrap(CBUtil.readBytes(body));
+                    MD5Digest resultMetadataId = null;
+                    if (version.compareTo(V5) >= 0)
+                        resultMetadataId = MD5Digest.wrap(CBUtil.readBytes(body));
                     boolean withPkIndices = version.compareTo(V4) >= 0;
                     Rows.Metadata metadata = Rows.Metadata.decode(body, withPkIndices, version, codecRegistry);
                     Rows.Metadata resultMetadata = decodeResultMetadata(body, version, codecRegistry);
-                    return new Prepared(id, metadata, resultMetadata);
+                    return new Prepared(id, resultMetadataId, metadata, resultMetadata);
                 }
 
                 private Metadata decodeResultMetadata(ByteBuf body, ProtocolVersion version, CodecRegistry codecRegistry) {
@@ -528,12 +541,14 @@ class Responses {
             };
 
             final MD5Digest statementId;
+            final MD5Digest resultMetadataId;
             final Rows.Metadata metadata;
             final Rows.Metadata resultMetadata;
 
-            private Prepared(MD5Digest statementId, Rows.Metadata metadata, Rows.Metadata resultMetadata) {
+            private Prepared(MD5Digest statementId, MD5Digest resultMetadataId, Rows.Metadata metadata, Rows.Metadata resultMetadata) {
                 super(Kind.PREPARED);
                 this.statementId = statementId;
+                this.resultMetadataId = resultMetadataId;
                 this.metadata = metadata;
                 this.resultMetadata = resultMetadata;
             }
