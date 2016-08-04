@@ -112,6 +112,24 @@ public abstract class BuiltStatement extends RegularStatement {
     }
 
     /**
+     * The number of values for this statement, or zero, if this
+     * statement does not have values.
+     * @param codecRegistry the codec registry that will be used if the statement must be
+     *                      rebuilt in order to determine if it has values, and Java objects
+     *                      must be inlined in the process (see {@link BuiltStatement} for
+     *                      more explanations on why this is so).
+     *
+     * @return the number of values.
+     */
+    public int valuesCount(CodecRegistry codecRegistry) {
+        maybeRebuildCache(codecRegistry);
+        if (values != null)
+            return values.size();
+        else
+            return 0;
+    }
+
+    /**
      * Returns the {@code i}th value as the Java type matching its CQL type.
      *
      * @param i             the index to retrieve.
