@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @CCMConfig(config = {"cdc_enabled:true"})
-@CassandraVersion(major = 3, minor = 8, description = "Requires CASSANDRA-12041 added in 3.8")
+@CassandraVersion(major = 3.8, description = "Requires CASSANDRA-12041 added in 3.8")
 public class TableMetadataCDCTest extends CCMTestsSupport {
 
     /**
