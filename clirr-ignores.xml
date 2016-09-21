@@ -147,4 +147,72 @@
         <justification>False positive, the enclosing class is package-private so this was never exposed</justification>
     </difference>
 
+    <!-- incompatibilities introduced by JAVA-1257 -->
+
+    <difference>
+        <differenceType>7002</differenceType> <!-- method removed -->
+        <className>com/datastax/driver/core/QueryLogger</className>
+        <method>int append(com.datastax.driver.core.Statement, java.lang.StringBuilder, int)</method>
+        <justification>Method was protected, removed after refactoring (JAVA-1257)</justification>
+    </difference>
+
+    <difference>
+        <differenceType>7002</differenceType> <!-- method removed -->
+        <className>com/datastax/driver/core/QueryLogger</className>
+        <method>int append(java.lang.CharSequence, java.lang.StringBuilder, int)</method>
+        <justification>Method was protected, removed after refactoring (JAVA-1257)</justification>
+    </difference>
+
+    <difference>
+        <differenceType>7002</differenceType> <!-- method removed -->
+        <className>com/datastax/driver/core/QueryLogger</className>
+        <method>int appendParameters(com.datastax.driver.core.BoundStatement, java.lang.StringBuilder, int)</method>
+        <justification>Method was protected, removed after refactoring (JAVA-1257)</justification>
+    </difference>
+
+    <difference>
+        <differenceType>7002</differenceType> <!-- method removed -->
+        <className>com/datastax/driver/core/QueryLogger</className>
+        <method>int appendParameters(com.datastax.driver.core.SimpleStatement, java.lang.StringBuilder, int)</method>
+        <justification>Method was protected, removed after refactoring (JAVA-1257)</justification>
+    </difference>
+
+    <difference>
+        <differenceType>7002</differenceType> <!-- method removed -->
+        <className>com/datastax/driver/core/QueryLogger</className>
+        <method>int countBoundValues(com.datastax.driver.core.BatchStatement)</method>
+        <justification>Method was protected, removed after refactoring (JAVA-1257)</justification>
+    </difference>
+
+    <difference>
+        <differenceType>7002</differenceType> <!-- method removed -->
+        <className>com/datastax/driver/core/QueryLogger</className>
+        <method>java.lang.String parameterValueAsString(com.datastax.driver.core.ColumnDefinitions$Definition, java.nio.ByteBuffer)</method>
+        <justification>Method was protected, removed after refactoring (JAVA-1257)</justification>
+    </difference>
+
+    <difference>
+        <differenceType>7002</differenceType> <!-- method removed -->
+        <className>com/datastax/driver/core/QueryLogger</className>
+        <method>java.lang.String parameterValueAsString(java.lang.Object)</method>
+        <justification>Method was protected, removed after refactoring (JAVA-1257)</justification>
+    </difference>
+
+    <difference>
+        <differenceType>7004</differenceType> <!-- number of arguments changed -->
+        <className>com/datastax/driver/core/QueryLogger</className>
+        <method>java.lang.String statementAsString(com.datastax.driver.core.Statement)</method>
+        <justification>Method was protected, removed after refactoring (JAVA-1257)</justification>
+    </difference>
+
+    <difference>
+        <differenceType>7005</differenceType> <!-- method argument type changed -->
+        <className>com/datastax/driver/core/QueryLogger</className>
+        <method>void logQuery(com.datastax.driver.core.Statement, java.lang.Exception, org.slf4j.Logger, java.lang.String)</method>
+        <to>*</to> <!-- didn't find a way to write the new signature -->
+        <justification>Method was protected, removed after refactoring (JAVA-1257)</justification>
+    </difference>
+
+    <!-- end of incompatibilities introduced by JAVA-1257 -->
+
 </differences>

@@ -47,6 +47,7 @@ import static org.mockito.Mockito.mock;
  * More tests, specifically targeting slow and unsuccessful queries, can be found in
  * {@link QueryLoggerErrorsTest}.
  */
+@SuppressWarnings("deprecation")
 public class QueryLoggerTest extends CCMTestsSupport {
 
     private static final List<DataType> dataTypes = new ArrayList<DataType>(
@@ -194,11 +195,10 @@ public class QueryLoggerTest extends CCMTestsSupport {
         assertThat(line)
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
-                .contains("BEGIN BATCH")
-                .contains("APPLY BATCH")
+                .contains("LOGGED")
                 .contains(query1)
                 .contains(query2)
-                .doesNotContain("c_int:");
+                .doesNotContain("c_int : ");
     }
 
     @Test(groups = "short")
@@ -225,11 +225,10 @@ public class QueryLoggerTest extends CCMTestsSupport {
         assertThat(line)
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
-                .contains("BEGIN UNLOGGED BATCH")
-                .contains("APPLY BATCH")
+                .contains("UNLOGGED")
                 .contains(query1)
                 .contains(query2)
-                .doesNotContain("c_int:");
+                .doesNotContain("c_int : ");
     }
 
     @Test(groups = "short")
@@ -260,14 +259,13 @@ public class QueryLoggerTest extends CCMTestsSupport {
         assertThat(line)
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
-                .contains("BEGIN COUNTER BATCH")
-                .contains("APPLY BATCH")
+                .contains("COUNTER")
                 .contains(query1)
                 .contains(query2)
-                .doesNotContain("c_count:");
+                .doesNotContain("c_count : ");
     }
 
-    @Test(groups = "unit")
+    @Test(groups = "short")
     public void should_log_unknown_statements() throws Exception {
         // given
         normal.setLevel(DEBUG);
@@ -281,19 +279,15 @@ public class QueryLoggerTest extends CCMTestsSupport {
             public String getKeyspace() {
                 return null;
             }
-
-            @Override
-            public String toString() {
-                return "weird statement";
-            }
         };
         // when
         queryLogger = QueryLogger.builder().build();
-        queryLogger.onRegister(mock(Cluster.class));
+        queryLogger.onRegister(cluster());
         queryLogger.update(null, unknownStatement, null, 0);
         // then
         String line = normalAppender.get();
-        assertThat(line).contains("weird statement");
+        assertThat(line)
+                .contains("QueryLoggerTest$");
     }
 
     // Tests for different log levels
@@ -368,7 +362,7 @@ public class QueryLoggerTest extends CCMTestsSupport {
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
                 .contains(query)
-                .doesNotContain("pk:42");
+                .doesNotContain("pk : 42");
     }
 
     // Tests for slow and error queries are in QueryLoggerErrorsTest
@@ -398,8 +392,8 @@ public class QueryLoggerTest extends CCMTestsSupport {
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
                 .contains(query)
-                .contains("param2:42")
-                .contains("param1:'foo'");
+                .contains("param2 : 42")
+                .contains("param1 : 'foo'");
     }
 
     @Test(groups = "short")
@@ -421,8 +415,8 @@ public class QueryLoggerTest extends CCMTestsSupport {
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
                 .contains(query)
-                .contains("pk:42")
-                .contains("c_text:'foo'");
+                .contains("pk : 42")
+                .contains("c_text : 'foo'");
     }
 
     @Test(groups = "short")
@@ -465,8 +459,8 @@ public class QueryLoggerTest extends CCMTestsSupport {
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
                 .contains(query)
-                .contains("pk:42")
-                .contains("c_text:NULL");
+                .contains("pk : 42")
+                .contains("c_text : <NULL>");
     }
 
     @Test(groups = "short")
@@ -509,8 +503,8 @@ public class QueryLoggerTest extends CCMTestsSupport {
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
                 .contains(query)
-                .contains("pk:42")
-                .contains("c_text:<UNSET>");
+                .contains("pk : 42")
+                .contains("c_text : <UNSET>");
     }
 
     @Test(groups = "short")
@@ -534,10 +528,10 @@ public class QueryLoggerTest extends CCMTestsSupport {
                 .contains(ipOfNode(1))
                 .contains(query1)
                 .contains(query2)
-                .contains("pk:42")
-                .contains("pk:43")
-                .contains("c_text:'foo'")
-                .contains("c_int:12345");
+                .contains("pk : 42")
+                .contains("pk : 43")
+                .contains("c_text : 'foo'")
+                .contains("c_int : 12345");
     }
 
     @Test(groups = "short")
@@ -644,7 +638,7 @@ public class QueryLoggerTest extends CCMTestsSupport {
         assertThat(line)
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
-                .contains("SELEC" + TRUNCATED_OUTPUT)
+                .contains("SELEC...")
                 .doesNotContain(query);
     }
 
@@ -669,10 +663,9 @@ public class QueryLoggerTest extends CCMTestsSupport {
         assertThat(line)
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
-                .contains("BEGIN" + TRUNCATED_OUTPUT)
                 .doesNotContain(query1)
                 .doesNotContain(query2)
-                .contains(" [2 statements");
+                .contains("2 inner statements");
     }
 
     @Test(groups = "short")
@@ -692,7 +685,7 @@ public class QueryLoggerTest extends CCMTestsSupport {
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
                 .contains(query)
-                .doesNotContain(TRUNCATED_OUTPUT);
+                .doesNotContain("...");
     }
 
     @CassandraVersion("2.0.0")
@@ -716,7 +709,7 @@ public class QueryLoggerTest extends CCMTestsSupport {
         assertThat(line)
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
-                .contains("c_int:12345" + TRUNCATED_OUTPUT)
+                .contains("c_int : 12345...")
                 .doesNotContain("123456");
     }
 
@@ -738,7 +731,7 @@ public class QueryLoggerTest extends CCMTestsSupport {
         assertThat(line)
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
-                .contains("12345" + TRUNCATED_OUTPUT)
+                .contains("12345...")
                 .doesNotContain("123456");
     }
 
@@ -762,7 +755,7 @@ public class QueryLoggerTest extends CCMTestsSupport {
         assertThat(line)
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
-                .contains("c_blob:0x0102" + TRUNCATED_OUTPUT)
+                .contains("c_blob : 0x0102...")
                 .doesNotContain("0x010203");
     }
 
@@ -784,7 +777,7 @@ public class QueryLoggerTest extends CCMTestsSupport {
         assertThat(line)
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
-                .contains("0x0102" + TRUNCATED_OUTPUT)
+                .contains("0x0102...")
                 .doesNotContain("0x010203");
     }
 
@@ -808,8 +801,8 @@ public class QueryLoggerTest extends CCMTestsSupport {
         assertThat(line)
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
-                .contains("c_int:123456")
-                .doesNotContain(TRUNCATED_OUTPUT);
+                .contains("c_int : 123456")
+                .doesNotContain("...");
     }
 
     @Test(groups = "short")
@@ -831,7 +824,7 @@ public class QueryLoggerTest extends CCMTestsSupport {
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
                 .contains("123456")
-                .doesNotContain(TRUNCATED_OUTPUT);
+                .doesNotContain("...");
     }
 
     @Test(groups = "short")
@@ -854,9 +847,9 @@ public class QueryLoggerTest extends CCMTestsSupport {
         assertThat(line)
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
-                .contains("c_int:123456")
-                .doesNotContain("pk:42")
-                .contains(FURTHER_PARAMS_OMITTED);
+                .contains("c_int : 123456")
+                .doesNotContain("pk : 42")
+                .contains("...");
     }
 
     @Test(groups = "short")
@@ -879,7 +872,7 @@ public class QueryLoggerTest extends CCMTestsSupport {
                 .contains(ipOfNode(1))
                 .contains("123456")
                 .doesNotContain("123456, 42")
-                .contains(FURTHER_PARAMS_OMITTED);
+                .contains("...");
     }
 
     @Test(groups = "short")
@@ -903,9 +896,9 @@ public class QueryLoggerTest extends CCMTestsSupport {
         assertThat(line)
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
-                .contains("c_int:123456")
-                .doesNotContain("pk:42")
-                .contains(FURTHER_PARAMS_OMITTED);
+                .contains("c_int : 123456")
+                .doesNotContain("pk : 42")
+                .contains("...");
     }
 
     @Test(groups = "short")
@@ -931,11 +924,10 @@ public class QueryLoggerTest extends CCMTestsSupport {
                 .contains(ipOfNode(1))
                 .contains(query1)
                 .contains(query2)
-                .contains("c_text:'foo'")
-                .doesNotContain("pk:42")
-                .doesNotContain("c_int:12345")
-                .doesNotContain("pk:43")
-                .contains(FURTHER_PARAMS_OMITTED);
+                .contains("c_text : 'foo'")
+                .doesNotContain("pk : 42")
+                .doesNotContain("pk : 43")
+                .contains("...");
     }
 
     @Test(groups = "short")
@@ -963,7 +955,7 @@ public class QueryLoggerTest extends CCMTestsSupport {
                 .contains(query2)
                 .contains("'foo'")
                 .doesNotContain("42, 12345, 43")
-                .contains(FURTHER_PARAMS_OMITTED);
+                .contains("...");
     }
 
     @Test(groups = "short")
@@ -986,8 +978,8 @@ public class QueryLoggerTest extends CCMTestsSupport {
         assertThat(line)
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
-                .contains("c_int:123456")
-                .contains("pk:42");
+                .contains("c_int : 123456")
+                .contains("pk : 42");
     }
 
     @Test(groups = "short")
@@ -1060,8 +1052,8 @@ public class QueryLoggerTest extends CCMTestsSupport {
                 .contains("Query completed normally")
                 .contains(ipOfNode(1))
                 .contains(query)
-                .contains("param2:42")
-                .contains("param1:'foo'");
+                .contains("param2 : 42")
+                .contains("param1 : 'foo'");
     }
 
     @Override

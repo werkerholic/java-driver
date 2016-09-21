@@ -3,6 +3,12 @@
 The purpose of this guide is to detail changes made by successive
 versions of the Java driver.
 
+### 3.2.0
+
+[JAVA-1257](https://datastax-oss.atlassian.net/browse/JAVA-1257) modifies the `QueryLogger`
+API and breaks its binary compatibility. However, only protected methods have been removed;
+users should only be concerned by this change if they extend the `QueryLogger` class.
+
 ### 3.1.0
 
 This version introduces an important change in the default retry behavior: statements that are not idempotent are not
