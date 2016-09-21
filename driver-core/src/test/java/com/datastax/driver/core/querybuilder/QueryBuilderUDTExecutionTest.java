@@ -15,7 +15,10 @@
  */
 package com.datastax.driver.core.querybuilder;
 
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.CCMTestsSupport;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.UDTValue;
+import com.datastax.driver.core.UserType;
 import com.datastax.driver.core.utils.CassandraVersion;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -43,8 +46,8 @@ public class QueryBuilderUDTExecutionTest extends CCMTestsSupport {
         UserType udtType = cluster().getMetadata().getKeyspace(keyspace).getUserType("udt");
         UDTValue udtValue = udtType.newValue().setInt("i", 2).setInet("a", InetAddress.getByName("localhost"));
 
-        Statement insert = insertInto("udtTest").value("k", 1).value("t", udtValue);
-        assertEquals(insert.toString(), "INSERT INTO udtTest (k,t) VALUES (1,{i:2,a:'127.0.0.1'});");
+        BuiltStatement insert = insertInto("udtTest").value("k", 1).value("t", udtValue);
+        assertEquals(insert.getQueryString(), "INSERT INTO udtTest (k,t) VALUES (1,?);");
 
         session().execute(insert);
 
@@ -62,8 +65,8 @@ public class QueryBuilderUDTExecutionTest extends CCMTestsSupport {
         UDTValue udtValue = udtType.newValue().setInt("i", 2).setInet("a", InetAddress.getByName("localhost"));
         UDTValue udtValue2 = udtType.newValue().setInt("i", 3).setInet("a", InetAddress.getByName("localhost"));
 
-        Statement insert = insertInto("udtTest").value("k", 1).value("l", ImmutableList.of(udtValue));
-        assertThat(insert.toString()).isEqualTo("INSERT INTO udtTest (k,l) VALUES (1,[{i:2,a:'127.0.0.1'}]);");
+        BuiltStatement insert = insertInto("udtTest").value("k", 1).value("l", ImmutableList.of(udtValue));
+        assertThat(insert.getQueryString()).isEqualTo("INSERT INTO udtTest (k,l) VALUES (1,?);");
 
         session().execute(insert);
 
@@ -77,8 +80,8 @@ public class QueryBuilderUDTExecutionTest extends CCMTestsSupport {
         Map<Integer, UDTValue> map = Maps.newHashMap();
         map.put(0, udtValue);
         map.put(2, udtValue2);
-        Statement updateMap = update("udtTest").with(putAll("m", map)).where(eq("k", 1));
-        assertThat(updateMap.toString())
+        BuiltStatement updateMap = update("udtTest").with(putAll("m", map)).where(eq("k", 1));
+        assertThat(updateMap.getQueryString())
                 .isEqualTo("UPDATE udtTest SET m=m+{0:{i:2,a:'127.0.0.1'},2:{i:3,a:'127.0.0.1'}} WHERE k=1;");
 
         session().execute(updateMap);

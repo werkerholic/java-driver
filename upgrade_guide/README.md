@@ -9,6 +9,12 @@ versions of the Java driver.
 API and breaks its binary compatibility. However, only protected methods have been removed;
 users should only be concerned by this change if they extend the `QueryLogger` class.
 
+[JAVA-1257](https://datastax-oss.atlassian.net/browse/JAVA-1257) also modifies the behavior 
+of `Statement.toString()`. This method now returns more information about the statement 
+than just its query string. Users should not assume anymore that `Statement.toString()` 
+will return a valid CQL statement. To retrieve the statement's query string, use 
+`RegularStatement.getQueryString()` instead.
+
 ### 3.1.0
 
 This version introduces an important change in the default retry behavior: statements that are not idempotent are not
