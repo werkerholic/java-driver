@@ -16,7 +16,7 @@
 package com.datastax.driver.core;
 
 import com.datastax.driver.core.exceptions.DriverInternalError;
-import com.google.common.base.Objects;
+import com.datastax.driver.core.utils.MoreObjects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -679,7 +679,7 @@ public abstract class DataType {
 
         @Override
         public final int hashCode() {
-            return Objects.hashCode(name, typeArguments);
+            return MoreObjects.hashCode(name, typeArguments);
         }
 
         @Override
@@ -757,7 +757,7 @@ public abstract class DataType {
 
         @Override
         public final int hashCode() {
-            return Objects.hashCode(name, customClassName);
+            return MoreObjects.hashCode(name, customClassName);
         }
 
         @Override
@@ -766,7 +766,7 @@ public abstract class DataType {
                 return false;
 
             DataType.CustomType d = (DataType.CustomType) o;
-            return name == d.name && Objects.equal(customClassName, d.customClassName);
+            return name == d.name && MoreObjects.equal(customClassName, d.customClassName);
         }
 
         @Override
