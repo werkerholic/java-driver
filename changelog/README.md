@@ -1,6 +1,11 @@
 ## Changelog
 
-### 3.0.6 (in progress)
+### 3.0.7 (in progress)
+
+- [improvement] JAVA-1328: Provide compatibility with Guava 20.
+
+
+### 3.0.6
 
 - [bug] JAVA-1330: Add un/register for SchemaChangeListener in DelegatingCluster
 - [bug] JAVA-1351: Include Custom Payload in Request.copy.

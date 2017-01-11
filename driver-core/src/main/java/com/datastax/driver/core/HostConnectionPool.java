@@ -162,9 +162,9 @@ class HostConnectionPool implements Connection.Owner {
     }
 
     private ListenableFuture<Void> handleErrors(ListenableFuture<Void> connectionInitFuture, Executor executor) {
-        return Futures.withFallback(connectionInitFuture, new FutureFallback<Void>() {
+        return GuavaCompatibility.INSTANCE.withFallback(connectionInitFuture, new AsyncFunction<Throwable, Void>() {
             @Override
-            public ListenableFuture<Void> create(Throwable t) throws Exception {
+            public ListenableFuture<Void> apply(Throwable t) throws Exception {
                 // Propagate these exceptions because they mean no connection will ever succeed. They will be handled
                 // accordingly in SessionManager#maybeAddPool.
                 Throwables.propagateIfInstanceOf(t, ClusterNameMismatchException.class);
@@ -625,7 +625,7 @@ class HostConnectionPool implements Connection.Owner {
                     if (connection.state.compareAndSet(OPEN, GONE))
                         open.decrementAndGet();
                 }
-            }, MoreExecutors.sameThreadExecutor());
+            }, GuavaCompatibility.INSTANCE.sameThreadExecutor());
             futures.add(future);
         }
 

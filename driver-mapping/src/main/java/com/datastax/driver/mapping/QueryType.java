@@ -19,7 +19,7 @@ import com.datastax.driver.core.TableMetadata;
 import com.datastax.driver.core.querybuilder.Delete;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.Select;
-import com.google.common.base.Objects;
+import com.datastax.driver.core.utils.MoreObjects;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -183,7 +183,7 @@ class QueryType {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(kind, startBoundSize, startInclusive, endBoundSize, endInclusive);
+        return MoreObjects.hashCode(kind, startBoundSize, startInclusive, endBoundSize, endInclusive);
     }
 
 }
