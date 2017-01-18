@@ -16,7 +16,7 @@
 package com.datastax.driver.core;
 
 import com.datastax.driver.core.exceptions.DriverInternalError;
-import com.google.common.io.Resources;
+import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 import com.google.common.util.concurrent.*;
 import org.slf4j.Logger;
@@ -24,9 +24,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
@@ -45,32 +47,91 @@ import java.util.regex.Pattern;
  * This is a hack, and might not work with subsequent Guava releases; the real fix is to stop exposing Guava in our
  * public API. We'll address that in version 4 of the driver.
  */
+@SuppressWarnings("deprecation")
 public abstract class GuavaCompatibility {
 
     private static final Logger logger = LoggerFactory.getLogger(GuavaCompatibility.class);
     private static final Pattern GA_VERSION_EXTRACTOR = Pattern.compile("(\\d+\\.\\d+\\.\\d+).*");
 
+    /**
+     * The unique instance of this class, that is compatible with the Guava version found in the classpath.
+     */
     public static final GuavaCompatibility INSTANCE = selectImplementation();
 
+    /**
+     * Force the initialization of the class. This should be called early to ensure a fast failure if an incompatible
+     * version of Guava is in the classpath (the driver code calls it when loading the {@link Cluster} class).
+     */
     public static void init() {
-        // dummy method to force initialization of the class
+        // nothing to do, we just want the static initializers to run
     }
 
+    /**
+     * Returns a {@code Future} whose result is taken from the given primary
+     * {@code input} or, if the primary input fails, from the {@code Future}
+     * provided by the {@code fallback}.
+     *
+     * @see Futures#withFallback(ListenableFuture, FutureFallback)
+     * @see Futures#catchingAsync(ListenableFuture, Class, AsyncFunction)
+     */
     public abstract <V> ListenableFuture<V> withFallback(ListenableFuture<? extends V> input,
                                                          AsyncFunction<Throwable, V> fallback);
 
+    /**
+     * Returns a {@code Future} whose result is taken from the given primary
+     * {@code input} or, if the primary input fails, from the {@code Future}
+     * provided by the {@code fallback}.
+     *
+     * @see Futures#withFallback(ListenableFuture, FutureFallback, Executor)
+     * @see Futures#catchingAsync(ListenableFuture, Class, AsyncFunction, Executor)
+     */
     public abstract <V> ListenableFuture<V> withFallback(ListenableFuture<? extends V> input,
                                                          AsyncFunction<Throwable, V> fallback, Executor executor);
 
+    /**
+     * Returns a new {@code ListenableFuture} whose result is asynchronously
+     * derived from the result of the given {@code Future}. More precisely, the
+     * returned {@code Future} takes its result from a {@code Future} produced by
+     * applying the given {@code AsyncFunction} to the result of the original
+     * {@code Future}.
+     *
+     * @see Futures#transform(ListenableFuture, AsyncFunction)
+     * @see Futures#transformAsync(ListenableFuture, AsyncFunction)
+     */
     public abstract <I, O> ListenableFuture<O> transformAsync(ListenableFuture<I> input,
                                                               AsyncFunction<? super I, ? extends O> function);
 
+    /**
+     * Returns a new {@code ListenableFuture} whose result is asynchronously
+     * derived from the result of the given {@code Future}. More precisely, the
+     * returned {@code Future} takes its result from a {@code Future} produced by
+     * applying the given {@code AsyncFunction} to the result of the original
+     * {@code Future}.
+     *
+     * @see Futures#transform(ListenableFuture, AsyncFunction, Executor)
+     * @see Futures#transformAsync(ListenableFuture, AsyncFunction, Executor)
+     */
     public abstract <I, O> ListenableFuture<O> transformAsync(ListenableFuture<I> input,
                                                               AsyncFunction<? super I, ? extends O> function,
                                                               Executor executor);
 
+    /**
+     * Returns true if {@code target} is a supertype of {@code argument}. "Supertype" is defined
+     * according to <a href="http://docs.oracle.com/javase/specs/jls/se8/html/jls-4.html#jls-4.5.1"
+     * >the rules for type arguments</a> introduced with Java generics.
+     *
+     * @see TypeToken#isAssignableFrom(Type)
+     * @see TypeToken#isSupertypeOf(Type)
+     */
     public abstract boolean isSupertypeOf(TypeToken<?> target, TypeToken<?> argument);
 
+    /**
+     * Returns an {@link Executor} that runs each task in the thread that invokes
+     * {@link Executor#execute execute}, as in {@link ThreadPoolExecutor.CallerRunsPolicy}.
+     *
+     * @see MoreExecutors#sameThreadExecutor()
+     * @see MoreExecutors#directExecutor()
+     */
     public abstract Executor sameThreadExecutor();
 
     private static GuavaCompatibility selectImplementation() {
@@ -93,7 +154,7 @@ public abstract class GuavaCompatibility {
     private static Manifest loadGuavaManifest() {
         InputStream in = null;
         try {
-            Enumeration<URL> resources = Resources.class.getClassLoader()
+            Enumeration<URL> resources = Preconditions.class.getClassLoader()
                     .getResources("META-INF/MANIFEST.MF");
             while (resources.hasMoreElements()) {
                 in = resources.nextElement().openStream();

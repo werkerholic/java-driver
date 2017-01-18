@@ -244,7 +244,7 @@
                     </bottom>
                     <links>
                         <link>https://docs.oracle.com/javase/8/docs/api/</link>
-                        <link>http://docs.guava-libraries.googlecode.com/git-history/v16.0.1/javadoc/</link>
+                        <link>https://google.github.io/guava/releases/19.0/api/docs/</link>
                         <link>http://netty.io/4.0/api/</link>
                         <!-- dependencies from driver-extras -->
                         <link>http://www.joda.org/joda-time/apidocs/</link>

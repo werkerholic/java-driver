@@ -209,7 +209,7 @@ public class AsyncQueryTest extends CCMTestsSupport {
 
     private ListenableFuture<Integer> connectAndQuery(String keyspace, Executor executor) {
         ListenableFuture<Session> sessionFuture = cluster().connectAsync(keyspace);
-        ListenableFuture<ResultSet> queryFuture = Futures.transform(sessionFuture, new AsyncFunction<Session, ResultSet>() {
+        ListenableFuture<ResultSet> queryFuture = GuavaCompatibility.INSTANCE.transformAsync(sessionFuture, new AsyncFunction<Session, ResultSet>() {
             @Override
             public ListenableFuture<ResultSet> apply(Session session) throws Exception {
                 return session.executeAsync("select v from foo where k = 1");

@@ -19,7 +19,6 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Host;
 import com.datastax.driver.core.HostDistance;
 import com.datastax.driver.core.Statement;
-import com.google.common.collect.Sets;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
