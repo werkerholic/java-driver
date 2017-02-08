@@ -20,12 +20,13 @@ import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import java.net.InetSocketAddress;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * {@link SSLOptions} implementation based on built-in JDK classes.
+ * {@link RemoteEndpointAwareSSLOptions} implementation based on built-in JDK classes.
  */
-public class JdkSSLOptions implements SSLOptions {
+public class JdkSSLOptions implements RemoteEndpointAwareSSLOptions {
 
     /**
      * Creates a builder to create a new instance.
@@ -52,7 +53,12 @@ public class JdkSSLOptions implements SSLOptions {
 
     @Override
     public SslHandler newSSLHandler(SocketChannel channel) {
-        SSLEngine engine = newSSLEngine(channel);
+        return newSSLHandler(channel, null);
+    }
+
+    @Override
+    public SslHandler newSSLHandler(SocketChannel channel, InetSocketAddress remoteEndpoint) {
+        SSLEngine engine = newSSLEngine(channel, remoteEndpoint);
         return new SslHandler(engine);
     }
 
@@ -65,9 +71,29 @@ public class JdkSSLOptions implements SSLOptions {
      *
      * @param channel the Netty channel for that connection.
      * @return the engine.
+     * @deprecated use {@link #newSSLEngine(SocketChannel, InetSocketAddress)} instead.
      */
+    @Deprecated
     protected SSLEngine newSSLEngine(SocketChannel channel) {
-        SSLEngine engine = context.createSSLEngine();
+        return newSSLEngine(channel, null);
+    }
+
+    /**
+     * Creates an SSL engine each time a connection is established.
+     * <p/>
+     * <p/>
+     * You might want to override this if you need to fine-tune the engine's configuration
+     * (for example enabling hostname verification).
+     *
+     * @param channel        the Netty channel for that connection.
+     * @param remoteEndpoint The remote endpoint we are connecting to; may be {@code null}.
+     * @return the engine.
+     * @since 3.2.0
+     */
+    protected SSLEngine newSSLEngine(SocketChannel channel, InetSocketAddress remoteEndpoint) {
+        SSLEngine engine = remoteEndpoint == null
+                ? context.createSSLEngine()
+                : context.createSSLEngine(remoteEndpoint.getHostName(), remoteEndpoint.getPort());
         engine.setUseClientMode(true);
         if (cipherSuites != null)
             engine.setEnabledCipherSuites(cipherSuites);

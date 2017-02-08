@@ -19,12 +19,14 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 
+import java.net.InetSocketAddress;
+
 /**
- * {@link SSLOptions} implementation based on Netty's SSL context.
+ * {@link RemoteEndpointAwareSSLOptions} implementation based on Netty's SSL context.
  * <p/>
  * Netty has the ability to use OpenSSL if available, instead of the JDK's built-in engine. This yields better performance.
  */
-public class NettySSLOptions implements SSLOptions {
+public class NettySSLOptions implements RemoteEndpointAwareSSLOptions {
     private final SslContext context;
 
     /**
@@ -38,6 +40,13 @@ public class NettySSLOptions implements SSLOptions {
 
     @Override
     public SslHandler newSSLHandler(SocketChannel channel) {
-        return context.newHandler(channel.alloc());
+        return newSSLHandler(channel, null);
+    }
+
+    @Override
+    public SslHandler newSSLHandler(SocketChannel channel, InetSocketAddress remoteEndpoint) {
+        return remoteEndpoint == null
+                ? context.newHandler(channel.alloc())
+                : context.newHandler(channel.alloc(), remoteEndpoint.getHostName(), remoteEndpoint.getPort());
     }
 }
