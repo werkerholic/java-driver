@@ -18,12 +18,11 @@ package com.datastax.driver.core;
 import com.datastax.driver.core.utils.Bytes;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import com.google.common.hash.Hashing;
 import com.google.common.primitives.UnsignedBytes;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -230,7 +229,6 @@ public abstract class Token implements Comparable<Token> {
                         k1 *= c2;
                         h1 ^= k1;
                 }
-                ;
 
                 //----------
                 // finalization
@@ -570,13 +568,7 @@ public abstract class Token implements Comparable<Token> {
             private static final Token MAX_TOKEN = new RPToken(MAX_VALUE);
 
             private BigInteger md5(ByteBuffer data) {
-                try {
-                    MessageDigest digest = MessageDigest.getInstance("MD5");
-                    digest.update(data.duplicate());
-                    return new BigInteger(digest.digest()).abs();
-                } catch (NoSuchAlgorithmException e) {
-                    throw new RuntimeException("MD5 doesn't seem to be available on this JVM", e);
-                }
+                return new BigInteger(Hashing.md5().hashBytes(Bytes.getArray(data)).asBytes()).abs();
             }
 
             @Override
