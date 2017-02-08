@@ -18,11 +18,12 @@ package com.datastax.driver.core;
 import com.datastax.driver.core.utils.Bytes;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import com.google.common.hash.Hashing;
 import com.google.common.primitives.UnsignedBytes;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -567,8 +568,43 @@ public abstract class Token implements Comparable<Token> {
             private static final Token MIN_TOKEN = new RPToken(MIN_VALUE);
             private static final Token MAX_TOKEN = new RPToken(MAX_VALUE);
 
+            private final MessageDigest prototype;
+            private final boolean supportsClone;
+
+            private RPTokenFactory() {
+                prototype = createMessageDigest();
+                boolean supportsClone;
+                try {
+                    prototype.clone();
+                    supportsClone = true;
+                } catch (CloneNotSupportedException e) {
+                    supportsClone = false;
+                }
+                this.supportsClone = supportsClone;
+            }
+
+            private static MessageDigest createMessageDigest() {
+                try {
+                    return MessageDigest.getInstance("MD5");
+                } catch (NoSuchAlgorithmException e) {
+                    throw new RuntimeException("MD5 doesn't seem to be available on this JVM", e);
+                }
+            }
+
+            private MessageDigest newMessageDigest() {
+                if (supportsClone) {
+                    try {
+                        return (MessageDigest) prototype.clone();
+                    } catch (CloneNotSupportedException ignored) {
+                    }
+                }
+                return createMessageDigest();
+            }
+
             private BigInteger md5(ByteBuffer data) {
-                return new BigInteger(Hashing.md5().hashBytes(Bytes.getArray(data)).asBytes()).abs();
+                MessageDigest digest = newMessageDigest();
+                digest.update(data.duplicate());
+                return new BigInteger(digest.digest()).abs();
             }
 
             @Override
