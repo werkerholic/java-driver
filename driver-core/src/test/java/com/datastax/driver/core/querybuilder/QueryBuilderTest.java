@@ -1209,4 +1209,19 @@ public class QueryBuilderTest {
                 .isEqualTo("SELECT a,b FROM users;");
     }
 
+    @Test(groups = "unit")
+    public void should_handle_setting_udt_fields() throws Exception {
+        assertThat(
+                update("tbl").with(set("a.b", "c")).where(eq("k", 0)).toString())
+                .isEqualTo("UPDATE tbl SET a.b='c' WHERE k=0;");
+    }
+
+    @Test(groups = "unit")
+    public void should_handle_retrieving_udt_fields() throws Exception {
+        assertThat(
+                select("a.b").from("tbl").toString())
+                .isEqualTo("SELECT a.b FROM tbl;");
+    }
+
+
 }

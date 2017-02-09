@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.*;
+import static com.datastax.driver.core.schemabuilder.SchemaBuilder.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 
@@ -86,5 +87,40 @@ public class QueryBuilderUDTExecutionTest extends CCMTestsSupport {
         rows = session().execute(select().from("udtTest").where(eq("k", 1))).all();
         r1 = rows.get(0);
         assertThat(r1.getMap("m", Integer.class, UDTValue.class)).isEqualTo(map);
+    }
+
+    /**
+     * Ensures that UDT fields can be set and retrieved on their own using {@link QueryBuilder#set} and
+     * {@link QueryBuilder#select} respectively.
+     *
+     * @test_category queries:builder
+     * @jira_ticket JAVA-1286
+     * @jira_ticket CASSANDRA-7423
+     */
+    @CassandraVersion(major=3.6, description="Requires CASSANDRA-7423 introduced in Cassandra 3.6")
+    @Test(groups = "short")
+    public void should_support_setting_and_retrieving_udt_fields() {
+        //given
+        String table = "unfrozen_udt_table";
+        String udt = "person";
+        session().execute(createType(udt).addColumn("first", DataType.text()).addColumn("last", DataType.text()));
+        UserType userType = cluster().getMetadata().getKeyspace(keyspace).getUserType(udt);
+        assertThat(userType).isNotNull();
+
+        session().execute(createTable(table).addPartitionKey("k", DataType.text())
+                .addUDTColumn("u", udtLiteral(udt))
+        );
+
+        UDTValue value = userType.newValue();
+        value.setString("first", "Bob");
+        value.setString("last", "Smith");
+        session().execute(insertInto(table).value("k", "key").value("u", value));
+
+        //when - updating udt field
+        session().execute(update(table).with(set("u.last", "Jones")).where(eq("k", "key")));
+
+        //then - field should be updated and retrievable by field name.
+        Row r = session().execute(select("u.last").from(table).where(eq("k", "key"))).one();
+        assertThat(r.getString("u.last")).isEqualTo("Jones");
     }
 }

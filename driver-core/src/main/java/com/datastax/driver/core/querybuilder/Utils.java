@@ -33,7 +33,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 abstract class Utils {
 
     private static final Pattern alphanumeric = Pattern.compile("\\w+"); // this includes _
-    private static final Pattern cnamePattern = Pattern.compile("\\w+(?:\\[.+\\])?");
+    private static final Pattern cnamePattern = Pattern.compile("\\w+(?:\\[.+\\]|\\.\\w+)?");
 
     /**
      * Deal with case sensitivity for a given element id (keyspace, table, column, etc.)
