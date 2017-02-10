@@ -97,7 +97,7 @@ public class QueryBuilderUDTExecutionTest extends CCMTestsSupport {
      * @jira_ticket JAVA-1286
      * @jira_ticket CASSANDRA-7423
      */
-    @CassandraVersion(major=3.6, description="Requires CASSANDRA-7423 introduced in Cassandra 3.6")
+    @CassandraVersion(value = "3.6", description = "Requires CASSANDRA-7423 introduced in Cassandra 3.6")
     @Test(groups = "short")
     public void should_support_setting_and_retrieving_udt_fields() {
         //given
