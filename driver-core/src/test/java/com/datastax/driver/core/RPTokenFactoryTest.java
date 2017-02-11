@@ -31,8 +31,9 @@ public class RPTokenFactoryTest {
         ByteBuffer byteBuffer = Bytes.fromHexString("0xCAFEBABE");
         Token tokenA = factory.hash(byteBuffer);
         Token tokenB = factory.hash(byteBuffer);
-        assertThat(tokenA).isEqualTo(factory.fromString("59959303159920881837560881824507314222"));
-        assertThat(tokenA).isEqualTo(tokenB);
+        assertThat(tokenA)
+                .isEqualTo(factory.fromString("59959303159920881837560881824507314222"))
+                .isEqualTo(tokenB);
     }
 
     @Test(groups = "unit")
