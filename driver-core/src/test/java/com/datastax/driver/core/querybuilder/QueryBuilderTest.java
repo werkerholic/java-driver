@@ -1209,17 +1209,30 @@ public class QueryBuilderTest {
                 .isEqualTo("SELECT a,b FROM users;");
     }
 
+    /**
+     * @test_category queries:builder
+     * @jira_ticket JAVA-1286
+     * @jira_ticket CASSANDRA-7423
+     */
     @Test(groups = "unit")
     public void should_handle_setting_udt_fields() throws Exception {
         assertThat(
-                update("tbl").with(set("a.b", "c")).where(eq("k", 0)).toString())
-                .isEqualTo("UPDATE tbl SET a.b='c' WHERE k=0;");
+                update("tbl")
+                        .with(set(raw("a.b"), "c"))
+                        .and(set(column("d.e"), "f"))
+                        .where(eq("k", 0)).toString())
+                .isEqualTo("UPDATE tbl SET a.b='c',\"d.e\"='f' WHERE k=0;");
     }
 
+    /**
+     * @test_category queries:builder
+     * @jira_ticket JAVA-1286
+     * @jira_ticket CASSANDRA-7423
+     */
     @Test(groups = "unit")
     public void should_handle_retrieving_udt_fields() throws Exception {
         assertThat(
-                select("a.b").from("tbl").toString())
+                select().raw("a.b").from("tbl").toString())
                 .isEqualTo("SELECT a.b FROM tbl;");
     }
 

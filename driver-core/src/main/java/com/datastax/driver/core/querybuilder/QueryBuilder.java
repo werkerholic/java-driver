@@ -589,6 +589,33 @@ public final class QueryBuilder {
     }
 
     /**
+     * Advanced "set" assignment of a value to a column or a
+     * {@link com.datastax.driver.core.UserType UDT} field.
+     * <p/>
+     * Accepted types for the {@code name} parameter are:
+     * <ol>
+     * <li>String: {@code set("name")} generates {@code name = value}
+     * (this is equivalent to {@link #set(String, Object)});</li>
+     * <li>{@link #raw(String)}: {@code set(raw("name"))}
+     * generates {@code name = value};</li>
+     * <li>{@link #column(String)}: {@code set(column("name"))}
+     * generates {@code "name" = value}.</li>
+     * </ol>
+     * Other types are not supported.
+     * <p/>
+     * This method is seldom preferable to {@link #set(String, Object)}; it is only useful
+     * if the column name is case sensitive, or when assigning values to individual fields
+     * of a UDT (CASSANDRA-7423).
+     *
+     * @param name  the column or UDT field name
+     * @param value the value to assign
+     * @return the correspond assignment (to use in an update query)
+     */
+    public static Assignment set(Object name, Object value) {
+        return new Assignment.SetAssignment(name, value);
+    }
+
+    /**
      * Incrementation of a counter column.
      * <p/>
      * This will generate: {@code name = name + 1}.
