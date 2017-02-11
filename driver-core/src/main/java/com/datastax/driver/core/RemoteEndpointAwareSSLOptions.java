@@ -41,11 +41,11 @@ public interface RemoteEndpointAwareSSLOptions extends SSLOptions {
      * This gets called each time the driver opens a new connection to a Cassandra host. The newly created handler will be added
      * to the channel's pipeline to provide SSL support for the connection.
      * <p/>
-     * You don't necessarily need to implement this method directly; see the provided implementations: {@link JdkSSLOptions} and
-     * {@link NettySSLOptions}.
+     * You don't necessarily need to implement this method directly; see the provided implementations:
+     * {@link RemoteEndpointAwareJdkSSLOptions} and {@link RemoteEndpointAwareNettySSLOptions}.
      *
      * @param channel        the channel.
-     * @param remoteEndpoint the remote endpoint address; may be {@code null} if the remote endpoint is unknown.
+     * @param remoteEndpoint the remote endpoint address.
      * @return a newly-created {@link SslHandler}.
      */
     SslHandler newSSLHandler(SocketChannel channel, InetSocketAddress remoteEndpoint);

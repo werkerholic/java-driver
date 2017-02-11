@@ -30,6 +30,7 @@ import java.net.InetSocketAddress;
  * @see JdkSSLOptions
  * @see NettySSLOptions
  */
+@SuppressWarnings("deprecation")
 public interface SSLOptions {
 
     /**

@@ -20,13 +20,16 @@ import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
-import java.net.InetSocketAddress;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * {@link RemoteEndpointAwareSSLOptions} implementation based on built-in JDK classes.
+ * {@link SSLOptions} implementation based on built-in JDK classes.
+ *
+ * @deprecated Use {@link RemoteEndpointAwareJdkSSLOptions} instead.
  */
-public class JdkSSLOptions implements RemoteEndpointAwareSSLOptions {
+@SuppressWarnings("DeprecatedIsStillUsed")
+@Deprecated
+public class JdkSSLOptions implements SSLOptions {
 
     /**
      * Creates a builder to create a new instance.
@@ -37,8 +40,8 @@ public class JdkSSLOptions implements RemoteEndpointAwareSSLOptions {
         return new Builder();
     }
 
-    private final SSLContext context;
-    private final String[] cipherSuites;
+    protected final SSLContext context;
+    protected final String[] cipherSuites;
 
     /**
      * Creates a new instance.
@@ -53,12 +56,7 @@ public class JdkSSLOptions implements RemoteEndpointAwareSSLOptions {
 
     @Override
     public SslHandler newSSLHandler(SocketChannel channel) {
-        throw new AssertionError("This class implements RemoteEndpointAwareSSLOptions, this method should not be called");
-    }
-
-    @Override
-    public SslHandler newSSLHandler(SocketChannel channel, InetSocketAddress remoteEndpoint) {
-        SSLEngine engine = newSSLEngine(channel, remoteEndpoint);
+        SSLEngine engine = newSSLEngine(channel);
         return new SslHandler(engine);
     }
 
@@ -71,29 +69,9 @@ public class JdkSSLOptions implements RemoteEndpointAwareSSLOptions {
      *
      * @param channel the Netty channel for that connection.
      * @return the engine.
-     * @deprecated use {@link #newSSLEngine(SocketChannel, InetSocketAddress)} instead.
      */
-    @Deprecated
-    protected SSLEngine newSSLEngine(SocketChannel channel) {
-        return newSSLEngine(channel, null);
-    }
-
-    /**
-     * Creates an SSL engine each time a connection is established.
-     * <p/>
-     * <p/>
-     * You might want to override this if you need to fine-tune the engine's configuration
-     * (for example enabling hostname verification).
-     *
-     * @param channel        the Netty channel for that connection.
-     * @param remoteEndpoint The remote endpoint we are connecting to; may be {@code null}.
-     * @return the engine.
-     * @since 3.2.0
-     */
-    protected SSLEngine newSSLEngine(SocketChannel channel, InetSocketAddress remoteEndpoint) {
-        SSLEngine engine = remoteEndpoint == null
-                ? context.createSSLEngine()
-                : context.createSSLEngine(remoteEndpoint.getHostName(), remoteEndpoint.getPort());
+    protected SSLEngine newSSLEngine(@SuppressWarnings("unused") SocketChannel channel) {
+        SSLEngine engine = context.createSSLEngine();
         engine.setUseClientMode(true);
         if (cipherSuites != null)
             engine.setEnabledCipherSuites(cipherSuites);
@@ -112,8 +90,8 @@ public class JdkSSLOptions implements RemoteEndpointAwareSSLOptions {
      * Helper class to build JDK-based SSL options.
      */
     public static class Builder {
-        private SSLContext context;
-        private String[] cipherSuites;
+        protected SSLContext context;
+        protected String[] cipherSuites;
 
         /**
          * Set the SSL context to use.
@@ -150,6 +128,7 @@ public class JdkSSLOptions implements RemoteEndpointAwareSSLOptions {
          *
          * @return the new instance.
          */
+        @SuppressWarnings("deprecation")
         public JdkSSLOptions build() {
             return new JdkSSLOptions(context, cipherSuites);
         }
