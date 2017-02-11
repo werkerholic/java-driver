@@ -53,7 +53,7 @@ public class JdkSSLOptions implements RemoteEndpointAwareSSLOptions {
 
     @Override
     public SslHandler newSSLHandler(SocketChannel channel) {
-        return newSSLHandler(channel, null);
+        throw new AssertionError("This class implements RemoteEndpointAwareSSLOptions, this method should not be called");
     }
 
     @Override

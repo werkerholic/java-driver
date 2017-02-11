@@ -36,16 +36,7 @@ import java.net.InetSocketAddress;
 public interface RemoteEndpointAwareSSLOptions extends SSLOptions {
 
     /**
-     * {@inheritDoc}
-     *
-     * @deprecated use {@link #newSSLHandler(SocketChannel, InetSocketAddress)} instead.
-     */
-    @Deprecated
-    @Override
-    SslHandler newSSLHandler(SocketChannel channel);
-
-    /**
-     * Creates a new SSL handler for the given Netty channel and the given remote remoteEndpoint.
+     * Creates a new SSL handler for the given Netty channel and the given remote endpoint.
      * <p/>
      * This gets called each time the driver opens a new connection to a Cassandra host. The newly created handler will be added
      * to the channel's pipeline to provide SSL support for the connection.

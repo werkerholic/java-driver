@@ -1428,6 +1428,7 @@ class Connection {
                 if (sslOptions instanceof RemoteEndpointAwareSSLOptions)
                     pipeline.addLast("ssl", ((RemoteEndpointAwareSSLOptions) sslOptions).newSSLHandler(channel, connection.address));
                 else
+                    //noinspection deprecation
                     pipeline.addLast("ssl", sslOptions.newSSLHandler(channel));
             }
 
