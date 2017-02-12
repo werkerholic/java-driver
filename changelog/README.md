@@ -7,7 +7,7 @@
 - [new feature] JAVA-1362: Send query options flags as [int] for Protocol V5+.
 - [improvement] JAVA-1367: Make protocol negotiation more resilient.
 - [bug] JAVA-1397: Handle duration as native datatype in protocol v5+.
-- [bug] JAVA-1286: Support setting and retrieving udt fields in QueryBuilder.
+- [improvement] JAVA-1286: Support setting and retrieving udt fields in QueryBuilder.
 
 Merged from 3.1.x branch:
 
