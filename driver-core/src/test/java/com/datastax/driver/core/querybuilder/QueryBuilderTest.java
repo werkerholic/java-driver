@@ -1218,10 +1218,10 @@ public class QueryBuilderTest {
     public void should_handle_setting_udt_fields() throws Exception {
         assertThat(
                 update("tbl")
-                        .with(set(raw("a.b"), "c"))
-                        .and(set(column("d.e"), "f"))
-                        .where(eq("k", 0)).toString())
-                .isEqualTo("UPDATE tbl SET a.b='c',\"d.e\"='f' WHERE k=0;");
+                        .with(set(path("a", quote("B")), "foo"))
+                        .and(set(raw("c.\"D\""), "bar"))
+                        .where(eq("k", 0)).getQueryString())
+                .isEqualTo("UPDATE tbl SET a.\"B\"=?,c.\"D\"=? WHERE k=0;");
     }
 
     /**
@@ -1232,9 +1232,11 @@ public class QueryBuilderTest {
     @Test(groups = "unit")
     public void should_handle_retrieving_udt_fields() throws Exception {
         assertThat(
-                select().raw("a.b").from("tbl").toString())
-                .isEqualTo("SELECT a.b FROM tbl;");
+                select()
+                        .path("a", Metadata.quote("B"))
+                        .raw("c.\"D\"")
+                        .from("tbl").getQueryString())
+                .isEqualTo("SELECT a.\"B\",c.\"D\" FROM tbl;");
     }
-
 
 }

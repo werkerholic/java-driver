@@ -594,18 +594,20 @@ public final class QueryBuilder {
      * <p/>
      * Accepted types for the {@code name} parameter are:
      * <ol>
-     * <li>String: {@code set("name")} generates {@code name = value}
+     * <li>String: {@code set("name", value)} generates {@code name = value}
      * (this is equivalent to {@link #set(String, Object)});</li>
-     * <li>{@link #raw(String)}: {@code set(raw("name"))}
+     * <li>{@link #raw(String)}: {@code set(raw("name"), value)}
      * generates {@code name = value};</li>
-     * <li>{@link #column(String)}: {@code set(column("name"))}
+     * <li>{@link #column(String)}: {@code set(column("name"), value)}
      * generates {@code "name" = value}.</li>
+     * <li>{@link #path(String...)}: {@code set(path("udt", "field"), value)}
+     * generates {@code name.field = value}.</li>
      * </ol>
      * Other types are not supported.
      * <p/>
      * This method is seldom preferable to {@link #set(String, Object)}; it is only useful
      * if the column name is case sensitive, or when assigning values to individual fields
-     * of a UDT (CASSANDRA-7423).
+     * of a UDT (see {@link #path(String...)}).
      *
      * @param name  the column or UDT field name
      * @param value the value to assign
@@ -1079,6 +1081,30 @@ public final class QueryBuilder {
      */
     public static Object column(String name) {
         return new Utils.CName(name);
+    }
+
+    /**
+     * Creates a path composed of the given path {@code segments}.
+     * <p/>
+     * All provided path segments will be concatenated together with dots.
+     * If any segment contains an identifier that needs quoting,
+     * caller code is expected to call {@link #quote(String)} prior to
+     * invoking this method.
+     * <p/>
+     * This method is currently only useful when accessing individual fields of a
+     * {@link com.datastax.driver.core.UserType user-defined type} (UDT),
+     * which is only possible since CASSANDRA-7423.
+     * <p/>
+     * Note that currently nested UDT fields are not supported and
+     * will be rejected by the server as a
+     * {@link com.datastax.driver.core.exceptions.SyntaxError syntax error}.
+     *
+     * @param segments the segments of the path to create.
+     * @return the segments concatenated as a single path.
+     * @see <a href="https://issues.apache.org/jira/browse/CASSANDRA-7423">CASSANDRA-7423</a>
+     */
+    public static Object path(String... segments) {
+        return new Utils.Path(segments);
     }
 
     /**

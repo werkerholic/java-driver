@@ -117,10 +117,20 @@ public class QueryBuilderUDTExecutionTest extends CCMTestsSupport {
         session().execute(insertInto(table).value("k", "key").value("u", value));
 
         //when - updating udt field
-        session().execute(update(table).with(set(raw("u.last"), "Jones")).where(eq("k", "key")));
+        session().execute(update(table).with(
+                set(path("u", "first"), "Rick"))
+                .and(set(raw("u.last"), "Jones"))
+                .where(eq("k", "key")));
 
         //then - field should be updated and retrievable by field name.
-        Row r = session().execute(select().raw("u.last").from(table).where(eq("k", "key"))).one();
+        Row r = session().execute(select()
+                .path("u", "first")
+                .raw("u.last")
+                .from(table)
+                .where(eq("k", "key"))).one();
+
+        assertThat(r.getString("u.first")).isEqualTo("Rick");
         assertThat(r.getString("u.last")).isEqualTo("Jones");
     }
+
 }

@@ -285,6 +285,13 @@ abstract class Utils {
             appendName((String) name, sb);
         } else if (name instanceof CName) {
             appendName(((CName) name).name, codecRegistry, sb);
+        } else if (name instanceof Path) {
+            String[] segments = ((Path) name).segments;
+            for (int i = 0; i < segments.length; i++) {
+                if (i > 0)
+                    sb.append('.');
+                appendName(segments[i], sb);
+            }
         } else if (name instanceof FCall) {
             FCall fcall = (FCall) name;
             sb.append(fcall.name).append('(');
@@ -480,4 +487,15 @@ abstract class Utils {
             return String.format("CAST(%s AS %s)", column, targetType);
         }
     }
+
+    static class Path {
+
+        private final String[] segments;
+
+        Path(String... segments) {
+            this.segments = segments;
+        }
+
+    }
+
 }
