@@ -260,7 +260,7 @@ public final class QueryBuilder {
     public static String token(String... columnNames) {
         StringBuilder sb = new StringBuilder();
         sb.append("token(");
-        Utils.joinAndAppendNames(sb, null, ",", Arrays.asList((Object[]) columnNames));
+        Utils.joinAndAppendNames(sb, null, Arrays.asList((Object[]) columnNames));
         sb.append(')');
         return sb.toString();
     }

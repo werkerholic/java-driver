@@ -86,7 +86,7 @@ public class Select extends BuiltStatement {
         if (columnNames == null) {
             builder.append('*');
         } else {
-            Utils.joinAndAppendNames(builder, codecRegistry, ",", columnNames);
+            Utils.joinAndAppendNames(builder, codecRegistry, columnNames);
         }
         builder.append(" FROM ");
         if (keyspace != null)
