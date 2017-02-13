@@ -49,8 +49,13 @@ public class CCMCache {
         }
 
         @Override
-        public VersionNumber getVersion() {
-            return ccm.getVersion();
+        public VersionNumber getCassandraVersion() {
+            return ccm.getCassandraVersion();
+        }
+
+        @Override
+        public VersionNumber getDSEVersion() {
+            return ccm.getDSEVersion();
         }
 
         @Override
@@ -213,6 +218,16 @@ public class CCMCache {
         @Override
         public void waitForDown(int node) {
             ccm.waitForDown(node);
+        }
+
+        @Override
+        public ProtocolVersion getDesiredProtocolVersion() {
+            return ccm.getDesiredProtocolVersion();
+        }
+
+        @Override
+        public ProtocolVersion getDesiredProtocolVersion(ProtocolVersion maximumAllowed) {
+            return ccm.getDesiredProtocolVersion(maximumAllowed);
         }
 
         @Override

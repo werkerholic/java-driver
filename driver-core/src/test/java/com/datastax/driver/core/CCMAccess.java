@@ -34,11 +34,18 @@ public interface CCMAccess extends Closeable {
     /**
      * Returns the Cassandra version of this CCM cluster.
      * <p/>
-     * By default the version is equal to {@link CCMBridge#getCassandraVersion()}.
      *
      * @return The version of this CCM cluster.
      */
-    VersionNumber getVersion();
+    VersionNumber getCassandraVersion();
+
+    /**
+     * Returns the DSE version of this CCM cluster.
+     * <p/>
+     *
+     * @return The version of this CCM cluster.
+     */
+    VersionNumber getDSEVersion();
 
     /**
      * @return The config directory for this CCM cluster.
@@ -236,4 +243,14 @@ public interface CCMAccess extends Closeable {
      */
     void waitForDown(int node);
 
+    /**
+     * @return The desired target protocol version based on the 'cassandra.version' System property.
+     */
+    ProtocolVersion getDesiredProtocolVersion();
+
+    /**
+     * @param maximumAllowed The maximum protocol version to use.
+     * @return The desired protocolVersion or maximumAllowed if {@link #getDesiredProtocolVersion} is greater.
+     */
+    ProtocolVersion getDesiredProtocolVersion(ProtocolVersion maximumAllowed);
 }
