@@ -36,11 +36,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class PrimitiveTypeSamples {
 
-    public static final Map<DataType, Object> ALL = generateAll();
-
-    private static Map<DataType, Object> generateAll() {
+    static Map<DataType, Object> samples(ProtocolVersion protocolVersion) {
         try {
-            final Collection<DataType> primitiveTypes = TestUtils.allPrimitiveTypes(TestUtils.getDesiredProtocolVersion());
+            final Collection<DataType> primitiveTypes = TestUtils.allPrimitiveTypes(protocolVersion);
             ImmutableMap<DataType, Object> data = ImmutableMap.<DataType, Object>builder()
                     .put(DataType.ascii(), "ascii")
                     .put(DataType.bigint(), Long.MAX_VALUE)
