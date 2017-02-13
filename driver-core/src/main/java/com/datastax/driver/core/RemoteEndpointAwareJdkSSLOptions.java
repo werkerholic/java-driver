@@ -68,7 +68,7 @@ public class RemoteEndpointAwareJdkSSLOptions extends JdkSSLOptions implements R
      * (for example enabling hostname verification).
      *
      * @param channel        the Netty channel for that connection.
-     * @param remoteEndpoint The remote endpoint we are connecting to; may be {@code null}.
+     * @param remoteEndpoint the remote endpoint we are connecting to.
      * @return the engine.
      * @since 3.2.0
      */
