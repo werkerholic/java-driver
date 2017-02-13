@@ -78,13 +78,18 @@ public class CCMTestsSupport {
         }
 
         @Override
-        public InetSocketAddress addressOfNode(int n) {
-            return delegate.addressOfNode(n);
+        public VersionNumber getCassandraVersion() {
+            return delegate.getCassandraVersion();
         }
 
         @Override
-        public VersionNumber getVersion() {
-            return delegate.getVersion();
+        public VersionNumber getDSEVersion() {
+            return delegate.getDSEVersion();
+        }
+
+        @Override
+        public InetSocketAddress addressOfNode(int n) {
+            return delegate.addressOfNode(n);
         }
 
         @Override
@@ -238,6 +243,16 @@ public class CCMTestsSupport {
         }
 
         @Override
+        public ProtocolVersion getDesiredProtocolVersion() {
+            return delegate.getDesiredProtocolVersion();
+        }
+
+        @Override
+        public ProtocolVersion getDesiredProtocolVersion(ProtocolVersion maximumAllowed) {
+            return delegate.getDesiredProtocolVersion(maximumAllowed);
+        }
+
+        @Override
         public String toString() {
             return delegate.toString();
         }
@@ -318,9 +333,15 @@ public class CCMTestsSupport {
         }
 
         private void addConfigOptions(String[] conf, Map<String, Object> config) {
-            String versionStr = version();
-            VersionNumber version = VersionNumber.parse(versionStr != null ?
-                    versionStr : CCMBridge.getCassandraVersion());
+            VersionNumber version = VersionNumber.parse(version());
+            if (version == null) {
+                version = CCMBridge.getGlobalCassandraVersion();
+            } else {
+                Boolean dse = dse();
+                if (dse != null && dse) {
+                    version = CCMBridge.getCassandraVersion(version);
+                }
+            }
             for (String aConf : conf) {
                 String[] tokens = aConf.split(":");
                 if (tokens.length != 2)
@@ -331,7 +352,7 @@ public class CCMTestsSupport {
                 // cannot be met.
                 if (configVersionRequirements.containsKey(key)) {
                     VersionNumber requirement = configVersionRequirements.get(key);
-                    if (version.compareTo(requirement) < 0) {
+                    if (version != null && version.compareTo(requirement) < 0) {
                         LOGGER.debug("Skipping inclusion of '{}' in cassandra.yaml since it requires >= C* {} and {} " +
                                 "was detected.", aConf, requirement, version);
                         continue;
@@ -428,15 +449,17 @@ public class CCMTestsSupport {
                 if (ccmBuilder == null) {
                     ccmBuilder = CCMBridge.builder().withNodes(numberOfNodes()).notStarted();
                 }
-                if (version() != null)
-                    ccmBuilder.withVersion(version());
+
+                VersionNumber version = VersionNumber.parse(version());
                 Boolean dse = dse();
                 if (dse != null) {
                     if (dse) {
-                        ccmBuilder.withDSE();
+                        ccmBuilder.withDSEVersion(version);
                     } else {
-                        ccmBuilder.withoutDSE();
+                        ccmBuilder.withCassandraVersion(version);
                     }
+                } else {
+                    ccmBuilder.withCassandraVersion(version);
                 }
                 if (ssl())
                     ccmBuilder.withSSL();
