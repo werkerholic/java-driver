@@ -113,78 +113,73 @@ and provide hints about what's going wrong.
 
 ### Logging query latencies
 
-The `QueryLogger` provides clients with the ability to log queries
-executed by the driver, and especially, it allows client to track slow
+The `EnhancedQueryLogger` class provides clients with the ability to log queries
+executed by the driver, and especially, it allows clients to track slow
 queries, i.e. queries that take longer to complete than a configured
 threshold in milliseconds.
 
-To turn on this feature, you first need to instantiate and register a `QueryLogger` instance:
+To turn on this feature, you first need to instantiate and register an `EnhancedQueryLogger` instance:
 
 ```java
 Cluster cluster = ...
-QueryLogger queryLogger = QueryLogger.builder()
+EnhancedQueryLogger queryLogger = EnhancedQueryLogger.builder()
     .withConstantThreshold(...)
-    .withMaxQueryStringLength(...)
 .build();
 cluster.register(queryLogger);
 ```
 
-Note that `QueryLogger` instances are thread-safe and can be shared cluster-wide. 
-Besides, you can adjust several parameters such as the maximum query string length to be printed, 
-the maximum number of parameters to print, etc. Refer to the 
-`QueryLogger` [API docs][query_logger] for more information.
+Note that `EnhancedQueryLogger` instances are thread-safe and can be shared cluster-wide. 
+Besides, you can adjust several parameters. Refer to the 
+`EnhancedQueryLogger` [API docs][query_logger] for more information.
 
-Secondly, you need to adjust your logging framework to accept log messages from the `QueryLogger`. The `QueryLogger`
+Secondly, you need to adjust your logging framework to accept log messages from the `EnhancedQueryLogger`. The `EnhancedQueryLogger`
 uses 3 different loggers:
 
-* `com.datastax.driver.core.QueryLogger.NORMAL` : Used to log normal queries, i.e., queries that completed successfully within a configurable threshold in milliseconds.
-* `com.datastax.driver.core.QueryLogger.SLOW` : Used to log slow queries, i.e., queries that completed successfully but that took longer than a configurable threshold in milliseconds to complete.
-* `com.datastax.driver.core.QueryLogger.ERROR`: Used to log unsuccessful queries, i.e., queries that did not complete normally and threw an exception. Note this this logger will also print the full stack trace of the reported exception.
+* `com.datastax.driver.core.EnhancedQueryLogger.NORMAL` : Used to log normal queries, i.e., queries that completed successfully within a configurable threshold in milliseconds.
+* `com.datastax.driver.core.EnhancedQueryLogger.SLOW` : Used to log slow queries, i.e., queries that completed successfully but that took longer than a configurable threshold in milliseconds to complete.
+* `com.datastax.driver.core.EnhancedQueryLogger.ERROR`: Used to log unsuccessful queries, i.e., queries that did not complete normally and threw an exception. Note this this logger will also print the full stack trace of the reported exception.
 
 You need to set the above loggers to DEBUG level to turn them on. E.g. to track queries
-that take more than 300 ms to complete, configure your `QueryLogger` with that threshold (see above), 
-then set the `com.datastax.driver.core.QueryLogger.SLOW` logger to DEBUG, e.g. with Log4J:
+that take more than 300 ms to complete, configure your `EnhancedQueryLogger` with that threshold (see above), 
+then set the `com.datastax.driver.core.EnhancedQueryLogger.SLOW` logger to DEBUG, e.g. with Log4J:
 
 ```xml
-  <logger name="com.datastax.driver.core.QueryLogger.SLOW">
+  <logger name="com.datastax.driver.core.EnhancedQueryLogger.SLOW">
     <level value="DEBUG"/>
   </logger>
 ```
 
-The `QueryLogger` would then print messages such as this for every slow query:
+The `EnhancedQueryLogger` would then print messages such as this for every slow query:
 
 ```
 DEBUG [cluster1] [/127.0.0.1:9042] Query too slow, took 329 ms: SELECT * FROM users WHERE user_id=?;
 ```
 
-As you can see, actual query parameters are not logged; if you want them to be printed as well, set the `com.datastax.driver.core.QueryLogger.SLOW` logger
+As you can see, actual query parameters are not logged; if you want them to be printed as well, set the `com.datastax.driver.core.EnhancedQueryLogger.SLOW` logger
 to TRACE instead, e.g. with Log4J:
 
 ```xml
-  <logger name="com.datastax.driver.core.QueryLogger.SLOW">
+  <logger name="com.datastax.driver.core.EnhancedQueryLogger.SLOW">
     <level value="TRACE"/>
   </logger>
 ```
 
-The `QueryLogger` would then print messages such as this for every slow query:
+The `EnhancedQueryLogger` would then print messages such as this for every slow query:
 
 ```
 TRACE [cluster1] [/127.0.0.1:9042] Query too slow, took 329 ms: SELECT * FROM users WHERE user_id=? [user_id=42];
 ```
 
 Be careful when logging large query strings (specially batches) and/or queries with considerable amounts of parameters. 
-See the `QueryLogger` [API docs][query_logger] for examples of how to truncate the printed message when necessary.
+See the `EnhancedQueryLogger` [API docs][query_logger] for examples of how to truncate the printed message when necessary.
 
 #### Constant vs Dynamic thresholds
 
-Currently the `QueryLogger` can be configured to track slow queries using either 
+Currently the `EnhancedQueryLogger` can be configured to track slow queries using either 
 a constant threshold in milliseconds (which is the default behavior), or 
 a dynamic threshold based on per-host latency percentiles, as computed by `PerHostPercentileTracker`.
 
-**Dynamic thresholds are still a beta feature: they haven't been extensively 
-tested yet, and the API is still subject to change.**
-
-Refer to the `QueryLogger` [API docs][query_logger] for an example of usage.
+Refer to the `EnhancedQueryLogger` [API docs][query_logger] for an example of usage.
 
 ### Performance Tips
 
@@ -239,7 +234,7 @@ It also turns on slow query tracing as described above.
     Turn on slow query logging by setting this logger to DEBUG; 
     set level to TRACE to also log query parameters 
     -->
-    <logger name="com.datastax.driver.core.QueryLogger.SLOW" level="DEBUG" />
+    <logger name="com.datastax.driver.core.EnhancedQueryLogger.SLOW" level="DEBUG" />
 
 	<root level="ERROR">
 		<appender-ref ref="async" />
@@ -290,7 +285,7 @@ It also turns on slow query tracing as described above.
    Turn on slow query logging by setting this logger to DEBUG; 
    set level to TRACE to also log query parameters 
   -->
-  <logger name="com.datastax.driver.core.QueryLogger.SLOW">
+  <logger name="com.datastax.driver.core.EnhancedQueryLogger.SLOW">
     <level value="DEBUG"/>
   </logger>
   
@@ -302,4 +297,4 @@ It also turns on slow query tracing as described above.
 </log4j:configuration>
 ```
 
-[query_logger]:http://docs.datastax.com/en/drivers/java/3.0/com/datastax/driver/core/QueryLogger.html
+[query_logger]:http://docs.datastax.com/en/drivers/java/3.0/com/datastax/driver/core/EnhancedQueryLogger.html

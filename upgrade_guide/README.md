@@ -5,9 +5,10 @@ versions of the Java driver.
 
 ### 3.2.0
 
-[JAVA-1257](https://datastax-oss.atlassian.net/browse/JAVA-1257) modifies the `QueryLogger`
-API and breaks its binary compatibility. However, only protected methods have been removed;
-users should only be concerned by this change if they extend the `QueryLogger` class.
+[JAVA-1257](https://datastax-oss.atlassian.net/browse/JAVA-1257) has deprecated the `QueryLogger`
+class and users are now encouraged to use `EnhancedQueryLogger` instead, which makes it easier for
+users to customize the way statements are logged. 
+Please note that `QueryLogger` class might be removed in a future major release.
 
 [JAVA-1257](https://datastax-oss.atlassian.net/browse/JAVA-1257) also modifies the behavior 
 of `Statement.toString()`. This method now returns more information about the statement 
