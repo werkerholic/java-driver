@@ -15,7 +15,6 @@
  */
 package com.datastax.driver.core;
 
-import com.datastax.driver.core.StatementFormatter.StatementFormatterLimits;
 import com.datastax.driver.core.StatementWrapperTest.CustomStatement;
 import com.datastax.driver.core.exceptions.DriverException;
 import com.datastax.driver.core.utils.CassandraVersion;
@@ -571,10 +570,9 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
                 .withStatementFormatter(StatementFormatter.builder()
-                        .withLimits(new StatementFormatterLimits()
-                                .setMaxQueryStringLength(UNLIMITED)
-                                .setMaxBoundValues(UNLIMITED)
-                                .setMaxBoundValueLength(UNLIMITED))
+                        .withMaxQueryStringLength(UNLIMITED)
+                        .withMaxBoundValues(UNLIMITED)
+                        .withMaxBoundValueLength(UNLIMITED)
                         .build())
                 .build();
         cluster().register(queryLogger);
@@ -603,10 +601,9 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
                 .withStatementFormatter(StatementFormatter.builder()
-                        .withLimits(new StatementFormatterLimits()
-                                .setMaxQueryStringLength(UNLIMITED)
-                                .setMaxBoundValues(UNLIMITED)
-                                .setMaxBoundValueLength(UNLIMITED))
+                        .withMaxQueryStringLength(UNLIMITED)
+                        .withMaxBoundValues(UNLIMITED)
+                        .withMaxBoundValueLength(UNLIMITED)
                         .build())
                 .build();
         cluster().register(queryLogger);
@@ -639,10 +636,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(DEBUG);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxQueryStringLength(5))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxQueryStringLength(5).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -663,10 +657,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(DEBUG);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxQueryStringLength(5))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxQueryStringLength(5).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -691,10 +682,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(DEBUG);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxQueryStringLength(UNLIMITED))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxQueryStringLength(UNLIMITED).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -715,10 +703,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValueLength(5))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValueLength(5).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -743,10 +728,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValueLength(5))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValueLength(5).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -767,10 +749,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValueLength(6))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValueLength(6).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -795,10 +774,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValueLength(6))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValueLength(6).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -819,10 +795,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValueLength(UNLIMITED))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValueLength(UNLIMITED).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -847,10 +820,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValueLength(UNLIMITED))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValueLength(UNLIMITED).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -871,10 +841,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValues(1))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValues(1).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -900,10 +867,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValues(1))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValues(1).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -926,10 +890,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValues(1))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValues(1).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -955,10 +916,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValues(1))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValues(1).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -987,10 +945,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValues(1))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValues(1).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -1017,10 +972,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValues(UNLIMITED))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValues(UNLIMITED).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -1045,10 +997,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValues(UNLIMITED))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValues(UNLIMITED).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -1070,10 +1019,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         // given
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxBoundValues(UNLIMITED))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxBoundValues(UNLIMITED).build())
                 .build();
         cluster().register(queryLogger);
         // when
@@ -1099,10 +1045,7 @@ public class EnhancedQueryLoggerTest extends CCMTestsSupport {
         normal.setLevel(TRACE);
         queryLogger = EnhancedQueryLogger.builder()
                 .withConstantThreshold(Long.MAX_VALUE)
-                .withStatementFormatter(
-                        StatementFormatter.builder().withLimits(
-                                new StatementFormatterLimits().setMaxQueryStringLength(UNLIMITED))
-                                .build())
+                .withStatementFormatter(StatementFormatter.builder().withMaxQueryStringLength(UNLIMITED).build())
                 .build();
         cluster().register(queryLogger);
         // when

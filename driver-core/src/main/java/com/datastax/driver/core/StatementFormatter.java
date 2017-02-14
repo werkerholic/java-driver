@@ -26,6 +26,8 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
+import static com.datastax.driver.core.StatementFormatter.StatementWriter.*;
+
 /**
  * A customizable component to format instances of {@link Statement}.
  * <p/>
@@ -163,286 +165,6 @@ public final class StatementFormatter {
     }
 
     /**
-     * A set of user-defined symbols that {@link StatementPrinter printers}
-     * are required to use when formatting statements.
-     * <p/>
-     * This class is NOT thread-safe.
-     */
-    public static final class StatementFormatterSymbols {
-
-        private String summaryStart = " [";
-        private String summaryEnd = "]";
-        private String boundValuesCount = "%s bound values";
-        private String statementsCount = "%s inner statements";
-        private String consistency = "CL=%s";
-        private String serialConsistency = "SCL=%s";
-        private String defaultTimestamp = "defaultTimestamp=%s";
-        private String readTimeoutMillis = "readTimeoutMillis=%s";
-        private String idempotent = "idempotent=%s";
-        private String queryStringStart = ": ";
-        private String queryStringEnd = " ";
-        private String boundValuesStart = "{ ";
-        private String boundValuesEnd = " }";
-        private String outgoingPayloadStart = "< ";
-        private String outgoingPayloadEnd = " >";
-        private String truncatedOutput = "...";
-        private String nullValue = "<NULL>";
-        private String unsetValue = "<UNSET>";
-        private String listElementSeparator = ", ";
-        private String nameValueSeparator = " : ";
-
-        /**
-         * Sets the template to use when printing a statement's
-         * summary start.
-         *
-         * @param summaryStart the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setSummaryStart(String summaryStart) {
-            this.summaryStart = summaryStart;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a statement's
-         * summary end.
-         *
-         * @param summaryEnd the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setSummaryEnd(String summaryEnd) {
-            this.summaryEnd = summaryEnd;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a statement's
-         * bound values count.
-         * <p/>
-         * The template should be a {@link String#format(String, Object...) String.format template} accepting one parameter.
-         *
-         * @param boundValuesCount the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setBoundValuesCount(String boundValuesCount) {
-            this.boundValuesCount = boundValuesCount;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a batch's
-         * inner statements count.
-         * <p/>
-         * The template should be a {@link String#format(String, Object...) String.format template} accepting one parameter.
-         *
-         * @param statementsCount the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setStatementsCount(String statementsCount) {
-            this.statementsCount = statementsCount;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a statement's
-         * consistency level.
-         * <p/>
-         * The template should be a {@link String#format(String, Object...) String.format template} accepting one parameter.
-         *
-         * @param consistency the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setConsistency(String consistency) {
-            this.consistency = consistency;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a statement's
-         * serial consistency level.
-         * <p/>
-         * The template should be a {@link String#format(String, Object...) String.format template} accepting one parameter.
-         *
-         * @param serialConsistency the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setSerialConsistency(String serialConsistency) {
-            this.serialConsistency = serialConsistency;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a statement's
-         * default timestamp.
-         * <p/>
-         * The template should be a {@link String#format(String, Object...) String.format template} accepting one parameter.
-         *
-         * @param defaultTimestamp the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setDefaultTimestamp(String defaultTimestamp) {
-            this.defaultTimestamp = defaultTimestamp;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a statement's
-         * read timeout value.
-         * <p/>
-         * The template should be a {@link String#format(String, Object...) String.format template} accepting one parameter.
-         *
-         * @param readTimeoutMillis the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setReadTimeoutMillis(String readTimeoutMillis) {
-            this.readTimeoutMillis = readTimeoutMillis;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a statement's
-         * idempotence flag.
-         * <p/>
-         * The template should be a {@link String#format(String, Object...) String.format template} accepting one parameter.
-         *
-         * @param idempotent the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setIdempotent(String idempotent) {
-            this.idempotent = idempotent;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a statement's
-         * query string start.
-         *
-         * @param queryStringStart the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setQueryStringStart(String queryStringStart) {
-            this.queryStringStart = queryStringStart;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a statement's
-         * query string end.
-         *
-         * @param queryStringEnd the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setQueryStringEnd(String queryStringEnd) {
-            this.queryStringEnd = queryStringEnd;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a statement's
-         * bound values start.
-         *
-         * @param boundValuesStart the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setBoundValuesStart(String boundValuesStart) {
-            this.boundValuesStart = boundValuesStart;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a statement's
-         * bound values end.
-         *
-         * @param boundValuesEnd the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setBoundValuesEnd(String boundValuesEnd) {
-            this.boundValuesEnd = boundValuesEnd;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a statement's
-         * outgoing payload start.
-         *
-         * @param outgoingPayloadStart the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setOutgoingPayloadStart(String outgoingPayloadStart) {
-            this.outgoingPayloadStart = outgoingPayloadStart;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a statement's
-         * outgoing payload end.
-         *
-         * @param outgoingPayloadEnd the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setOutgoingPayloadEnd(String outgoingPayloadEnd) {
-            this.outgoingPayloadEnd = outgoingPayloadEnd;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when the output is truncated
-         * because it exceeds some imposed length limit.
-         *
-         * @param truncatedOutput the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setTruncatedOutput(String truncatedOutput) {
-            this.truncatedOutput = truncatedOutput;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing a null value.
-         *
-         * @param nullValue the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setNullValue(String nullValue) {
-            this.nullValue = nullValue;
-            return this;
-        }
-
-        /**
-         * Sets the template to use when printing an unset (bound) value.
-         *
-         * @param unsetValue the template to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setUnsetValue(String unsetValue) {
-            this.unsetValue = unsetValue;
-            return this;
-        }
-
-        /**
-         * Sets the list element separator.
-         *
-         * @param listElementSeparator the list element separator to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setListElementSeparator(String listElementSeparator) {
-            this.listElementSeparator = listElementSeparator;
-            return this;
-        }
-
-        /**
-         * Sets the name-value separator.
-         *
-         * @param nameValueSeparator the name-value separator to use.
-         * @return this
-         */
-        public StatementFormatterSymbols setNameValueSeparator(String nameValueSeparator) {
-            this.nameValueSeparator = nameValueSeparator;
-            return this;
-        }
-    }
-
-    /**
      * A set of user-defined limitation rules that {@link StatementPrinter printers}
      * should strive to comply with when formatting statements.
      * <p/>
@@ -461,135 +183,20 @@ public final class StatementFormatter {
          */
         public static final int UNLIMITED = -1;
 
-        public static final int DEFAULT_MAX_QUERY_STRING_LENGTH = 500;
-        public static final int DEFAULT_MAX_BOUND_VALUE_LENGTH = 50;
-        public static final int DEFAULT_MAX_BOUND_VALUES = 10;
-        public static final int DEFAULT_MAX_INNER_STATEMENTS = 5;
-        public static final int DEFAULT_MAX_OUTGOING_PAYLOAD_ENTRIES = 10;
-        public static final int DEFAULT_MAX_OUTGOING_PAYLOAD_VALUE_LENGTH = 50;
+        public final int maxQueryStringLength;
+        public final int maxBoundValueLength;
+        public final int maxBoundValues;
+        public final int maxInnerStatements;
+        public final int maxOutgoingPayloadEntries;
+        public final int maxOutgoingPayloadValueLength;
 
-        private int maxQueryStringLength = DEFAULT_MAX_QUERY_STRING_LENGTH;
-        private int maxBoundValueLength = DEFAULT_MAX_BOUND_VALUE_LENGTH;
-        private int maxBoundValues = DEFAULT_MAX_BOUND_VALUES;
-        private int maxInnerStatements = DEFAULT_MAX_INNER_STATEMENTS;
-        private int maxOutgoingPayloadEntries = DEFAULT_MAX_OUTGOING_PAYLOAD_ENTRIES;
-        private int maxOutgoingPayloadValueLength = DEFAULT_MAX_OUTGOING_PAYLOAD_VALUE_LENGTH;
-
-        /**
-         * Sets the maximum length allowed for query strings.
-         * The default is {@value DEFAULT_MAX_QUERY_STRING_LENGTH}.
-         * <p/>
-         * If the query string length exceeds this threshold,
-         * printers should append the
-         * {@link StatementFormatterSymbols#setTruncatedOutput(String) truncatedOutput} symbol.
-         *
-         * @param maxQueryStringLength the maximum length allowed for query strings.
-         * @throws IllegalArgumentException if the value is not > 0, or {@value UNLIMITED} (unlimited).
-         */
-        public StatementFormatterLimits setMaxQueryStringLength(int maxQueryStringLength) {
-            if (maxQueryStringLength <= 0 && maxQueryStringLength != UNLIMITED)
-                throw new IllegalArgumentException("Invalid maxQueryStringLength, should be > 0 or -1 (unlimited), got " + maxQueryStringLength);
+        private StatementFormatterLimits(int maxQueryStringLength, int maxBoundValueLength, int maxBoundValues, int maxInnerStatements, int maxOutgoingPayloadEntries, int maxOutgoingPayloadValueLength) {
             this.maxQueryStringLength = maxQueryStringLength;
-            return this;
-        }
-
-        /**
-         * Sets the maximum length, in numbers of printed characters,
-         * allowed for a single bound value.
-         * The default is {@value DEFAULT_MAX_BOUND_VALUE_LENGTH}.
-         * <p/>
-         * If the bound value length exceeds this threshold,
-         * printers should append the
-         * {@link StatementFormatterSymbols#setTruncatedOutput(String) truncatedOutput} symbol.
-         *
-         * @param maxBoundValueLength the maximum length, in numbers of printed characters,
-         * allowed for a single bound value.
-         * @throws IllegalArgumentException if the value is not > 0, or {@value UNLIMITED} (unlimited).
-         */
-        public StatementFormatterLimits setMaxBoundValueLength(int maxBoundValueLength) {
-            if (maxBoundValueLength <= 0 && maxBoundValueLength != UNLIMITED)
-                throw new IllegalArgumentException("Invalid maxBoundValueLength, should be > 0 or -1 (unlimited), got " + maxBoundValueLength);
             this.maxBoundValueLength = maxBoundValueLength;
-            return this;
-        }
-
-        /**
-         * Sets the maximum number of printed bound values.
-         * The default is {@value DEFAULT_MAX_BOUND_VALUES}.
-         * <p/>
-         * If the number of bound values exceeds this threshold,
-         * printers should append the
-         * {@link StatementFormatterSymbols#setTruncatedOutput(String) truncatedOutput} symbol.
-         *
-         * @param maxBoundValues the maximum number of printed bound values.
-         * @throws IllegalArgumentException if the value is not > 0, or {@value UNLIMITED} (unlimited).
-         */
-        public StatementFormatterLimits setMaxBoundValues(int maxBoundValues) {
-            if (maxBoundValues <= 0 && maxBoundValues != UNLIMITED)
-                throw new IllegalArgumentException("Invalid maxBoundValues, should be > 0 or -1 (unlimited), got " + maxBoundValues);
             this.maxBoundValues = maxBoundValues;
-            return this;
-        }
-
-        /**
-         * Sets the maximum number of printed inner statements
-         * of a {@link BatchStatement}.
-         * The default is {@value DEFAULT_MAX_INNER_STATEMENTS}.
-         * Setting this value to zero should disable the printing
-         * of inner statements.
-         * <p/>
-         * If the number of inner statements exceeds this threshold,
-         * printers should append the
-         * {@link StatementFormatterSymbols#setTruncatedOutput(String) truncatedOutput} symbol.
-         * <p/>
-         * If the statement to format is not a batch statement,
-         * then this setting should be ignored.
-         *
-         * @param maxInnerStatements the maximum number of printed inner statements
-         * of a {@link BatchStatement}.
-         * @throws IllegalArgumentException if the value is not >= 0, or {@value UNLIMITED} (unlimited).
-         */
-        public StatementFormatterLimits setMaxInnerStatements(int maxInnerStatements) {
-            if (maxInnerStatements < 0 && maxInnerStatements != UNLIMITED)
-                throw new IllegalArgumentException("Invalid maxInnerStatements, should be >= 0 or -1 (unlimited), got " + maxInnerStatements);
             this.maxInnerStatements = maxInnerStatements;
-            return this;
-        }
-
-        /**
-         * Sets the maximum number of printed outgoing payload entries.
-         * The default is {@value DEFAULT_MAX_OUTGOING_PAYLOAD_ENTRIES}.
-         * <p/>
-         * If the number of entries exceeds this threshold,
-         * printers should append the
-         * {@link StatementFormatterSymbols#setTruncatedOutput(String) truncatedOutput} symbol.
-         *
-         * @param maxOutgoingPayloadEntries the maximum number of printed outgoing payload entries.
-         * @throws IllegalArgumentException if the value is not > 0, or {@value UNLIMITED} (unlimited).
-         */
-        public StatementFormatterLimits setMaxOutgoingPayloadEntries(int maxOutgoingPayloadEntries) {
-            if (maxOutgoingPayloadEntries <= 0 && maxOutgoingPayloadEntries != UNLIMITED)
-                throw new IllegalArgumentException("Invalid maxOutgoingPayloadEntries, should be > 0 or -1 (unlimited), got " + maxOutgoingPayloadEntries);
             this.maxOutgoingPayloadEntries = maxOutgoingPayloadEntries;
-            return this;
-        }
-
-        /**
-         * Sets the maximum length, in bytes, allowed for a single outgoing payload value.
-         * The default is {@value DEFAULT_MAX_OUTGOING_PAYLOAD_VALUE_LENGTH}.
-         * <p/>
-         * If the payload value length in bytes exceeds this threshold,
-         * printers should append the
-         * {@link StatementFormatterSymbols#setTruncatedOutput(String) truncatedOutput} symbol.
-         *
-         * @param maxOutgoingPayloadValueLength the maximum length, in bytes, allowed for a single outgoing payload value.
-         * @throws IllegalArgumentException if the value is not > 0, or {@value UNLIMITED} (unlimited).
-         */
-        public StatementFormatterLimits setMaxOutgoingPayloadValueLength(int maxOutgoingPayloadValueLength) {
-            if (maxOutgoingPayloadValueLength <= 0 && maxOutgoingPayloadValueLength != UNLIMITED)
-                throw new IllegalArgumentException("Invalid maxOutgoingPayloadValueLength, should be > 0 or -1 (unlimited), got " + maxOutgoingPayloadValueLength);
             this.maxOutgoingPayloadValueLength = maxOutgoingPayloadValueLength;
-            return this;
         }
     }
 
@@ -598,6 +205,7 @@ public final class StatementFormatter {
      * <p/>
      * This class is thread-safe.
      */
+    @SuppressWarnings("rawtypes")
     public static final class StatementPrinterRegistry {
 
         private final LoadingCache<Class<? extends Statement>, StatementPrinter> printers;
@@ -647,9 +255,6 @@ public final class StatementFormatter {
      * {@link StatementPrinter statement printers} in formatting
      * a statement.
      * <p/>
-     * Direct access to the underlying {@link StringBuilder buffer}
-     * is also possible.
-     * <p/>
      * Instances of this class are designed to format one single statement;
      * they keep internal counters such as the current number of printed bound values,
      * and for this reason, they should not be reused to format more than one statement.
@@ -659,26 +264,42 @@ public final class StatementFormatter {
      * <p/>
      * This class is NOT thread-safe.
      */
-    public static final class StatementWriter {
+    public static final class StatementWriter implements Appendable {
+
+        public static final String summaryStart = " [";
+        public static final String summaryEnd = "]";
+        public static final String boundValuesCount = "%s bound values";
+        public static final String statementsCount = "%s inner statements";
+        public static final String queryStringStart = ": ";
+        public static final String queryStringEnd = " ";
+        public static final String boundValuesStart = "{ ";
+        public static final String boundValuesEnd = " }";
+        public static final String outgoingPayloadStart = "< ";
+        public static final String outgoingPayloadEnd = " >";
+        public static final String truncatedOutput = "...";
+        public static final String nullValue = "<NULL>";
+        public static final String unsetValue = "<UNSET>";
+        public static final String listElementSeparator = ", ";
+        public static final String nameValueSeparator = " : ";
 
         private static final int MAX_EXCEEDED = -2;
 
         private final StringBuilder buffer;
         private final StatementPrinterRegistry printerRegistry;
         private final StatementFormatterLimits limits;
-        private final StatementFormatterSymbols symbols;
         private final ProtocolVersion protocolVersion;
         private final CodecRegistry codecRegistry;
         private int remainingQueryStringChars;
         private int remainingBoundValues;
 
-        private StatementWriter(StringBuilder buffer, StatementPrinterRegistry printerRegistry,
-                                StatementFormatterLimits limits, StatementFormatterSymbols symbols,
-                                ProtocolVersion protocolVersion, CodecRegistry codecRegistry) {
+        private StatementWriter(StringBuilder buffer,
+                                StatementPrinterRegistry printerRegistry,
+                                StatementFormatterLimits limits,
+                                ProtocolVersion protocolVersion,
+                                CodecRegistry codecRegistry) {
             this.buffer = buffer;
             this.printerRegistry = printerRegistry;
             this.limits = limits;
-            this.symbols = symbols;
             this.protocolVersion = protocolVersion;
             this.codecRegistry = codecRegistry;
             remainingQueryStringChars = limits.maxQueryStringLength == StatementFormatterLimits.UNLIMITED
@@ -699,7 +320,7 @@ public final class StatementFormatter {
          * @return a child {@link StatementWriter}.
          */
         public StatementWriter createChildWriter() {
-            return new StatementWriter(buffer, printerRegistry, limits, symbols, protocolVersion, codecRegistry);
+            return new StatementWriter(buffer, printerRegistry, limits, protocolVersion, codecRegistry);
         }
 
         /**
@@ -717,13 +338,6 @@ public final class StatementFormatter {
         }
 
         /**
-         * @return The current symbols.
-         */
-        public StatementFormatterSymbols getSymbols() {
-            return symbols;
-        }
-
-        /**
          * @return The protocol version in use.
          */
         public ProtocolVersion getProtocolVersion() {
@@ -735,13 +349,6 @@ public final class StatementFormatter {
          */
         public CodecRegistry getCodecRegistry() {
             return codecRegistry;
-        }
-
-        /**
-         * @return The underlying buffer.
-         */
-        public StringBuilder getBuffer() {
-            return buffer;
         }
 
         /**
@@ -774,133 +381,31 @@ public final class StatementFormatter {
             return remainingBoundValues == MAX_EXCEEDED;
         }
 
-        /**
-         * Appends the symbol "{@link StatementFormatterSymbols#setSummaryStart(String) summaryStart}"
-         *
-         * @return this
-         */
-        public StatementWriter appendSummaryStart() {
-            buffer.append(symbols.summaryStart);
+        @Override
+        public StatementWriter append(CharSequence csq) {
+            buffer.append(csq);
             return this;
         }
 
-        /**
-         * Appends the symbol "{@link StatementFormatterSymbols#setSummaryEnd(String) summaryEnd}"
-         *
-         * @return this
-         */
-        public StatementWriter appendSummaryEnd() {
-            buffer.append(symbols.summaryEnd);
+        @Override
+        public StatementWriter append(CharSequence csq, int start, int end) {
+            buffer.append(csq, start, end);
             return this;
         }
 
-        /**
-         * Appends the symbol "{@link StatementFormatterSymbols#setQueryStringStart(String) queryStringStart}"
-         *
-         * @return this
-         */
-        public StatementWriter appendQueryStringStart() {
-            buffer.append(symbols.queryStringStart);
+        @Override
+        public StatementWriter append(char c) {
+            buffer.append(c);
             return this;
         }
 
-        /**
-         * Appends the symbol "{@link StatementFormatterSymbols#setQueryStringEnd(String) queryStringEnd}"
-         *
-         * @return this
-         */
-        public StatementWriter appendQueryStringEnd() {
-            buffer.append(symbols.queryStringEnd);
+        public StatementWriter append(Object obj) {
+            buffer.append(obj);
             return this;
         }
 
-        /**
-         * Appends the symbol "{@link StatementFormatterSymbols#setBoundValuesStart(String) boundValuesStart}"
-         *
-         * @return this
-         */
-        public StatementWriter appendBoundValuesStart() {
-            buffer.append(symbols.boundValuesStart);
-            return this;
-        }
-
-        /**
-         * Appends the symbol "{@link StatementFormatterSymbols#setBoundValuesEnd(String) boundValuesEnd}"
-         *
-         * @return this
-         */
-        public StatementWriter appendBoundValuesEnd() {
-            buffer.append(symbols.boundValuesEnd);
-            return this;
-        }
-
-        /**
-         * Appends the symbol "{@link StatementFormatterSymbols#setOutgoingPayloadStart(String) outgoingPayloadStart}"
-         *
-         * @return this
-         */
-        public StatementWriter appendOutgoingPayloadStart() {
-            buffer.append(symbols.outgoingPayloadStart);
-            return this;
-        }
-
-        /**
-         * Appends the symbol "{@link StatementFormatterSymbols#setOutgoingPayloadEnd(String) outgoingPayloadEnd}"
-         *
-         * @return this
-         */
-        public StatementWriter appendOutgoingPayloadEnd() {
-            buffer.append(symbols.outgoingPayloadEnd);
-            return this;
-        }
-
-        /**
-         * Appends the symbol "{@link StatementFormatterSymbols#setTruncatedOutput(String) truncatedOutput}"
-         *
-         * @return this
-         */
-        public StatementWriter appendTruncatedOutput() {
-            buffer.append(symbols.truncatedOutput);
-            return this;
-        }
-
-        /**
-         * Appends the symbol "{@link StatementFormatterSymbols#setNullValue(String) nullValue}"
-         *
-         * @return this
-         */
-        public StatementWriter appendNullValue() {
-            buffer.append(symbols.nullValue);
-            return this;
-        }
-
-        /**
-         * Appends the symbol "{@link StatementFormatterSymbols#setUnsetValue(String) unsetValue}"
-         *
-         * @return this
-         */
-        public StatementWriter appendUnsetValue() {
-            buffer.append(symbols.unsetValue);
-            return this;
-        }
-
-        /**
-         * Appends the symbol "{@link StatementFormatterSymbols#setListElementSeparator(String) listElementSeparator}"
-         *
-         * @return this
-         */
-        public StatementWriter appendListElementSeparator() {
-            buffer.append(symbols.listElementSeparator);
-            return this;
-        }
-
-        /**
-         * Appends the symbol "{@link StatementFormatterSymbols#setNameValueSeparator(String) nameValueSeparator}"
-         *
-         * @return this
-         */
-        public StatementWriter appendNameValueSeparator() {
-            buffer.append(symbols.nameValueSeparator);
+        public StatementWriter append(String str) {
+            buffer.append(str);
             return this;
         }
 
@@ -924,46 +429,6 @@ public final class StatementFormatter {
             return this;
         }
 
-        public StatementWriter appendBoundValuesCount(int totalBoundValuesCount) {
-            buffer.append(String.format(symbols.boundValuesCount, totalBoundValuesCount));
-            return this;
-        }
-
-        public StatementWriter appendInnerStatementsCount(int numberOfInnerStatements) {
-            buffer.append(String.format(symbols.statementsCount, numberOfInnerStatements));
-            return this;
-        }
-
-        public StatementWriter appendConsistency(ConsistencyLevel consistency) {
-            buffer.append(String.format(symbols.consistency, consistency == null ? symbols.unsetValue : consistency));
-            return this;
-        }
-
-        public StatementWriter appendSerialConsistency(ConsistencyLevel serialConsistency) {
-            buffer.append(String.format(symbols.serialConsistency, serialConsistency == null ? symbols.unsetValue : serialConsistency));
-            return this;
-        }
-
-        public StatementWriter appendDefaultTimestamp(long defaultTimestamp) {
-            buffer.append(String.format(symbols.defaultTimestamp, defaultTimestamp == Long.MIN_VALUE ? symbols.unsetValue : defaultTimestamp));
-            return this;
-        }
-
-        public StatementWriter appendReadTimeoutMillis(int readTimeoutMillis) {
-            buffer.append(String.format(symbols.readTimeoutMillis, readTimeoutMillis == Integer.MIN_VALUE ? symbols.unsetValue : readTimeoutMillis));
-            return this;
-        }
-
-        public StatementWriter appendIdempotent(Boolean idempotent) {
-            buffer.append(String.format(symbols.idempotent, idempotent == null ? symbols.unsetValue : idempotent));
-            return this;
-        }
-
-        public StatementWriter appendBatchType(BatchStatement.Type batchType) {
-            buffer.append(batchType);
-            return this;
-        }
-
         /**
          * Appends the given fragment as a query string fragment.
          * <p>
@@ -973,7 +438,7 @@ public final class StatementFormatter {
          * This methods also keeps track of the amount of characters used so far
          * to print the query string, and automatically detects when
          * the query string exceeds {@link StatementFormatterLimits#maxQueryStringLength the maximum length},
-         * in which case it appends only once the {@link StatementFormatterSymbols#truncatedOutput truncated output} symbol.
+         * in which case it truncates the output.
          *
          * @param queryStringFragment The query string fragment to append
          * @return this writer (for method chaining).
@@ -990,7 +455,7 @@ public final class StatementFormatter {
                     queryStringFragment = queryStringFragment.substring(0, remainingQueryStringChars);
                     buffer.append(queryStringFragment);
                 }
-                appendTruncatedOutput();
+                buffer.append(truncatedOutput);
                 remainingQueryStringChars = MAX_EXCEEDED;
             } else {
                 buffer.append(queryStringFragment);
@@ -1009,21 +474,21 @@ public final class StatementFormatter {
             int remaining = limits.maxOutgoingPayloadEntries;
             Iterator<Map.Entry<String, ByteBuffer>> it = outgoingPayload.entrySet().iterator();
             if (it.hasNext()) {
-                appendOutgoingPayloadStart();
+                buffer.append(outgoingPayloadStart);
                 while (it.hasNext()) {
                     if (limits.maxOutgoingPayloadEntries != StatementFormatterLimits.UNLIMITED && remaining == 0) {
-                        appendTruncatedOutput();
+                        buffer.append(truncatedOutput);
                         break;
                     }
                     Map.Entry<String, ByteBuffer> entry = it.next();
                     String name = entry.getKey();
                     buffer.append(name);
-                    appendNameValueSeparator();
+                    buffer.append(nameValueSeparator);
                     ByteBuffer value = entry.getValue();
                     String formatted;
                     boolean lengthExceeded = false;
                     if (value == null) {
-                        formatted = symbols.nullValue;
+                        formatted = nullValue;
                     } else {
                         if (limits.maxOutgoingPayloadValueLength != StatementFormatterLimits.UNLIMITED) {
                             // prevent large blobs from being converted to strings
@@ -1035,13 +500,13 @@ public final class StatementFormatter {
                     }
                     buffer.append(formatted);
                     if (lengthExceeded)
-                        appendTruncatedOutput();
+                        buffer.append(truncatedOutput);
                     if (it.hasNext())
-                        appendListElementSeparator();
+                        buffer.append(listElementSeparator);
                     if (limits.maxOutgoingPayloadEntries != StatementFormatterLimits.UNLIMITED)
                         remaining--;
                 }
-                appendOutgoingPayloadEnd();
+                buffer.append(outgoingPayloadEnd);
             }
             return this;
         }
@@ -1070,7 +535,7 @@ public final class StatementFormatter {
             if (maxAppendedBoundValuesExceeded())
                 return this;
             if (value == null) {
-                doAppendBoundValue(name, symbols.nullValue);
+                doAppendBoundValue(name, nullValue);
                 return this;
             } else if (value instanceof ByteBuffer && limits.maxBoundValueLength != StatementFormatterLimits.UNLIMITED) {
                 ByteBuffer byteBuffer = (ByteBuffer) value;
@@ -1083,7 +548,7 @@ public final class StatementFormatter {
                     // a cropped byte buffer anyway
                     String formatted = TypeCodec.blob().format(byteBuffer);
                     doAppendBoundValue(name, formatted);
-                    appendTruncatedOutput();
+                    buffer.append(truncatedOutput);
                     return this;
                 }
             }
@@ -1097,7 +562,7 @@ public final class StatementFormatter {
         }
 
         public StatementWriter appendUnsetBoundValue(String name) {
-            doAppendBoundValue(name, symbols.unsetValue);
+            doAppendBoundValue(name, unsetValue);
             return this;
         }
 
@@ -1105,7 +570,7 @@ public final class StatementFormatter {
             if (maxAppendedBoundValuesExceeded())
                 return;
             if (remainingBoundValues == 0) {
-                appendTruncatedOutput();
+                buffer.append(truncatedOutput);
                 remainingBoundValues = MAX_EXCEEDED;
                 return;
             }
@@ -1116,11 +581,11 @@ public final class StatementFormatter {
             }
             if (name != null) {
                 buffer.append(name);
-                appendNameValueSeparator();
+                buffer.append(nameValueSeparator);
             }
             buffer.append(value);
             if (lengthExceeded)
-                appendTruncatedOutput();
+                buffer.append(truncatedOutput);
             if (limits.maxBoundValues != StatementFormatterLimits.UNLIMITED)
                 remainingBoundValues--;
         }
@@ -1183,22 +648,27 @@ public final class StatementFormatter {
 
         protected void printHeader(S statement, StatementWriter out, StatementFormatVerbosity verbosity) {
             out.appendClassNameAndHashCode(statement);
-            out.appendSummaryStart();
+            out.append(summaryStart);
             printSummary(statement, out, verbosity);
-            out.appendSummaryEnd();
+            out.append(summaryEnd);
         }
 
         protected void printSummary(S statement, StatementWriter out, StatementFormatVerbosity verbosity) {
-            out.appendIdempotent(statement.isIdempotent());
-            out.appendListElementSeparator();
-            out.appendConsistency(statement.getConsistencyLevel());
+            Boolean idempotent = statement.isIdempotent();
+            ConsistencyLevel consistencyLevel = statement.getConsistencyLevel();
+            out.append(String.format("idempotent=%s", idempotent == null ? unsetValue : idempotent));
+            out.append(listElementSeparator);
+            out.append(String.format("CL=%s", consistencyLevel == null ? unsetValue : consistencyLevel));
             if (verbosity.compareTo(StatementFormatVerbosity.NORMAL) >= 0) {
-                out.appendListElementSeparator();
-                out.appendSerialConsistency(statement.getSerialConsistencyLevel());
-                out.appendListElementSeparator();
-                out.appendDefaultTimestamp(statement.getDefaultTimestamp());
-                out.appendListElementSeparator();
-                out.appendReadTimeoutMillis(statement.getReadTimeoutMillis());
+                ConsistencyLevel serialConsistencyLevel = statement.getSerialConsistencyLevel();
+                long defaultTimestamp = statement.getDefaultTimestamp();
+                int readTimeoutMillis = statement.getReadTimeoutMillis();
+                out.append(listElementSeparator);
+                out.append(String.format("SCL=%s", serialConsistencyLevel == null ? unsetValue : serialConsistencyLevel));
+                out.append(listElementSeparator);
+                out.append(String.format("defaultTimestamp=%s", defaultTimestamp == Long.MIN_VALUE ? unsetValue : defaultTimestamp));
+                out.append(listElementSeparator);
+                out.append(String.format("readTimeoutMillis=%s", readTimeoutMillis == Integer.MIN_VALUE ? unsetValue : readTimeoutMillis));
             }
         }
 
@@ -1230,9 +700,9 @@ public final class StatementFormatter {
 
         @Override
         protected void printQueryString(S statement, StatementWriter out, StatementFormatVerbosity verbosity) {
-            out.appendQueryStringStart();
+            out.append(queryStringStart);
             out.appendQueryStringFragment(statement.getQueryString(out.getCodecRegistry()));
-            out.appendQueryStringEnd();
+            out.append(queryStringEnd);
         }
 
     }
@@ -1246,21 +716,21 @@ public final class StatementFormatter {
         @Override
         protected void printSummary(SimpleStatement statement, StatementWriter out, StatementFormatVerbosity verbosity) {
             super.printSummary(statement, out, verbosity);
-            out.appendListElementSeparator();
-            out.appendBoundValuesCount(statement.valuesCount());
+            out.append(listElementSeparator);
+            out.append(String.format(boundValuesCount, statement.valuesCount()));
         }
 
         @Override
         protected void printBoundValues(SimpleStatement statement, StatementWriter out, StatementFormatVerbosity verbosity) {
             if (statement.valuesCount() > 0) {
-                out.appendBoundValuesStart();
+                out.append(boundValuesStart);
                 if (statement.usesNamedValues()) {
                     boolean first = true;
                     for (String valueName : statement.getValueNames()) {
                         if (first)
                             first = false;
                         else
-                            out.appendListElementSeparator();
+                            out.append(listElementSeparator);
                         out.appendBoundValue(valueName, statement.getObject(valueName), null);
                         if (out.maxAppendedBoundValuesExceeded())
                             break;
@@ -1268,13 +738,13 @@ public final class StatementFormatter {
                 } else {
                     for (int i = 0; i < statement.valuesCount(); i++) {
                         if (i > 0)
-                            out.appendListElementSeparator();
+                            out.append(listElementSeparator);
                         out.appendBoundValue(i, statement.getObject(i), null);
                         if (out.maxAppendedBoundValuesExceeded())
                             break;
                     }
                 }
-                out.appendBoundValuesEnd();
+                out.append(boundValuesEnd);
             }
         }
 
@@ -1289,23 +759,23 @@ public final class StatementFormatter {
         @Override
         protected void printSummary(BuiltStatement statement, StatementWriter out, StatementFormatVerbosity verbosity) {
             super.printSummary(statement, out, verbosity);
-            out.appendListElementSeparator();
-            out.appendBoundValuesCount(statement.valuesCount(out.getCodecRegistry()));
+            out.append(listElementSeparator);
+            out.append(String.format(boundValuesCount, statement.valuesCount(out.getCodecRegistry())));
         }
 
         @Override
         protected void printBoundValues(BuiltStatement statement, StatementWriter out, StatementFormatVerbosity verbosity) {
             if (statement.valuesCount(out.getCodecRegistry()) > 0) {
-                out.appendBoundValuesStart();
+                out.append(boundValuesStart);
                 // BuiltStatement does not use named values
                 for (int i = 0; i < statement.valuesCount(out.getCodecRegistry()); i++) {
                     if (i > 0)
-                        out.appendListElementSeparator();
+                        out.append(listElementSeparator);
                     out.appendBoundValue(i, statement.getObject(i), null);
                     if (out.maxAppendedBoundValuesExceeded())
                         break;
                 }
-                out.appendBoundValuesEnd();
+                out.append(boundValuesEnd);
             }
         }
 
@@ -1320,27 +790,27 @@ public final class StatementFormatter {
         @Override
         protected void printSummary(BoundStatement statement, StatementWriter out, StatementFormatVerbosity verbosity) {
             super.printSummary(statement, out, verbosity);
-            out.appendListElementSeparator();
+            out.append(listElementSeparator);
             ColumnDefinitions metadata = statement.preparedStatement().getVariables();
-            out.appendBoundValuesCount(metadata.size());
+            out.append(String.format(boundValuesCount, metadata.size()));
         }
 
         @Override
         protected void printQueryString(BoundStatement statement, StatementWriter out, StatementFormatVerbosity verbosity) {
-            out.appendQueryStringStart();
+            out.append(queryStringStart);
                 out.appendQueryStringFragment(statement.preparedStatement().getQueryString());
-            out.appendQueryStringEnd();
+            out.append(queryStringEnd);
         }
 
         @Override
         protected void printBoundValues(BoundStatement statement, StatementWriter out, StatementFormatVerbosity verbosity) {
             if (statement.preparedStatement().getVariables().size() > 0) {
-                out.appendBoundValuesStart();
+                out.append(boundValuesStart);
                 ColumnDefinitions metadata = statement.preparedStatement().getVariables();
                 if (metadata.size() > 0) {
                     for (int i = 0; i < metadata.size(); i++) {
                         if (i > 0)
-                            out.appendListElementSeparator();
+                            out.append(listElementSeparator);
                         if (statement.isSet(i))
                             out.appendBoundValue(metadata.getName(i), statement.wrapper.values[i], metadata.getType(i));
                         else
@@ -1349,7 +819,7 @@ public final class StatementFormatter {
                             break;
                     }
                 }
-                out.appendBoundValuesEnd();
+                out.append(boundValuesEnd);
             }
         }
 
@@ -1365,29 +835,29 @@ public final class StatementFormatter {
         @Override
         public void print(BatchStatement statement, StatementWriter out, StatementFormatVerbosity verbosity) {
             out.appendClassNameAndHashCode(statement);
-            out.appendSummaryStart();
-            out.appendBatchType(getBatchType(statement));
-            out.appendListElementSeparator();
-            out.appendInnerStatementsCount(statement.size());
-            out.appendListElementSeparator();
+            out.append(summaryStart);
+            out.append(getBatchType(statement));
+            out.append(listElementSeparator);
+            out.append(String.format(statementsCount, statement.size()));
+            out.append(listElementSeparator);
             int totalBoundValuesCount = 0;
             for (List<ByteBuffer> values : getValues(statement, out)) {
                 totalBoundValuesCount += values.size();
             }
-            out.appendBoundValuesCount(totalBoundValuesCount);
-            out.appendSummaryEnd();
+            out.append(String.format(boundValuesCount, totalBoundValuesCount));
+            out.append(summaryEnd);
             if (verbosity.compareTo(StatementFormatVerbosity.NORMAL) >= 0 && out.getLimits().maxInnerStatements > 0) {
-                out.getBuffer().append(' ');
+                out.append(' ');
                 int i = 1;
                 for (Statement stmt : statement.getStatements()) {
                     if (i > 1)
-                        out.appendListElementSeparator();
+                        out.append(listElementSeparator);
                     if (i > out.getLimits().maxInnerStatements) {
-                        out.appendTruncatedOutput();
+                        out.append(truncatedOutput);
                         break;
                     }
-                    out.getBuffer().append(i++);
-                    out.appendNameValueSeparator();
+                    out.append(i++);
+                    out.append(listElementSeparator);
                     StatementPrinter<? super Statement> printer = out.getPrinterRegistry().findPrinter(stmt);
                     printer.print(stmt, out.createChildWriter(), verbosity);
                 }
@@ -1449,21 +919,23 @@ public final class StatementFormatter {
      */
     public static class Builder {
 
-        private final List<StatementPrinter> printers = new ArrayList<StatementPrinter>();
-        private StatementFormatterLimits limits = new StatementFormatterLimits();
-        private StatementFormatterSymbols symbols = new StatementFormatterSymbols();
+        public static final int DEFAULT_MAX_QUERY_STRING_LENGTH = 500;
+        public static final int DEFAULT_MAX_BOUND_VALUE_LENGTH = 50;
+        public static final int DEFAULT_MAX_BOUND_VALUES = 10;
+        public static final int DEFAULT_MAX_INNER_STATEMENTS = 5;
+        public static final int DEFAULT_MAX_OUTGOING_PAYLOAD_ENTRIES = 10;
+        public static final int DEFAULT_MAX_OUTGOING_PAYLOAD_VALUE_LENGTH = 50;
+
+        private int maxQueryStringLength = DEFAULT_MAX_QUERY_STRING_LENGTH;
+        private int maxBoundValueLength = DEFAULT_MAX_BOUND_VALUE_LENGTH;
+        private int maxBoundValues = DEFAULT_MAX_BOUND_VALUES;
+        private int maxInnerStatements = DEFAULT_MAX_INNER_STATEMENTS;
+        private int maxOutgoingPayloadEntries = DEFAULT_MAX_OUTGOING_PAYLOAD_ENTRIES;
+        private int maxOutgoingPayloadValueLength = DEFAULT_MAX_OUTGOING_PAYLOAD_VALUE_LENGTH;
+
+        private final List<StatementPrinter<?>> printers = new ArrayList<StatementPrinter<?>>();
 
         private Builder() {
-        }
-
-        public Builder withLimits(StatementFormatterLimits limits) {
-            this.limits = limits;
-            return this;
-        }
-
-        public Builder withSymbols(StatementFormatterSymbols symbols) {
-            this.symbols = symbols;
-            return this;
         }
 
         public Builder addStatementPrinter(StatementPrinter<?> printer) {
@@ -1477,6 +949,117 @@ public final class StatementFormatter {
         }
 
         /**
+         * Sets the maximum length allowed for query strings.
+         * The default is {@value DEFAULT_MAX_QUERY_STRING_LENGTH}.
+         * <p/>
+         * If the query string length exceeds this threshold,
+         * printers should truncate it.
+         *
+         * @param maxQueryStringLength the maximum length allowed for query strings.
+         * @throws IllegalArgumentException if the value is not > 0, or {@value StatementFormatterLimits#UNLIMITED} (unlimited).
+         */
+        public Builder withMaxQueryStringLength(int maxQueryStringLength) {
+            if (maxQueryStringLength <= 0 && maxQueryStringLength != StatementFormatterLimits.UNLIMITED)
+                throw new IllegalArgumentException("Invalid maxQueryStringLength, should be > 0 or -1 (unlimited), got " + maxQueryStringLength);
+            this.maxQueryStringLength = maxQueryStringLength;
+            return this;
+        }
+
+        /**
+         * Sets the maximum length, in numbers of printed characters,
+         * allowed for a single bound value.
+         * The default is {@value DEFAULT_MAX_BOUND_VALUE_LENGTH}.
+         * <p/>
+         * If the bound value length exceeds this threshold,
+         * printers should truncate it.
+         *
+         * @param maxBoundValueLength the maximum length, in numbers of printed characters,
+         *                            allowed for a single bound value.
+         * @throws IllegalArgumentException if the value is not > 0, or {@value StatementFormatterLimits#UNLIMITED} (unlimited).
+         */
+        public Builder withMaxBoundValueLength(int maxBoundValueLength) {
+            if (maxBoundValueLength <= 0 && maxBoundValueLength != StatementFormatterLimits.UNLIMITED)
+                throw new IllegalArgumentException("Invalid maxBoundValueLength, should be > 0 or -1 (unlimited), got " + maxBoundValueLength);
+            this.maxBoundValueLength = maxBoundValueLength;
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of printed bound values.
+         * The default is {@value DEFAULT_MAX_BOUND_VALUES}.
+         * <p/>
+         * If the number of bound values exceeds this threshold,
+         * printers should truncate it.
+         *
+         * @param maxBoundValues the maximum number of printed bound values.
+         * @throws IllegalArgumentException if the value is not > 0, or {@value StatementFormatterLimits#UNLIMITED} (unlimited).
+         */
+        public Builder withMaxBoundValues(int maxBoundValues) {
+            if (maxBoundValues <= 0 && maxBoundValues != StatementFormatterLimits.UNLIMITED)
+                throw new IllegalArgumentException("Invalid maxBoundValues, should be > 0 or -1 (unlimited), got " + maxBoundValues);
+            this.maxBoundValues = maxBoundValues;
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of printed inner statements
+         * of a {@link BatchStatement}.
+         * The default is {@value DEFAULT_MAX_INNER_STATEMENTS}.
+         * Setting this value to zero should disable the printing
+         * of inner statements.
+         * <p/>
+         * If the number of inner statements exceeds this threshold,
+         * printers should truncate it.
+         * <p/>
+         * If the statement to format is not a batch statement,
+         * then this withting should be ignored.
+         *
+         * @param maxInnerStatements the maximum number of printed inner statements
+         *                           of a {@link BatchStatement}.
+         * @throws IllegalArgumentException if the value is not >= 0, or {@value StatementFormatterLimits#UNLIMITED} (unlimited).
+         */
+        public Builder withMaxInnerStatements(int maxInnerStatements) {
+            if (maxInnerStatements < 0 && maxInnerStatements != StatementFormatterLimits.UNLIMITED)
+                throw new IllegalArgumentException("Invalid maxInnerStatements, should be >= 0 or -1 (unlimited), got " + maxInnerStatements);
+            this.maxInnerStatements = maxInnerStatements;
+            return this;
+        }
+
+        /**
+         * Sets the maximum number of printed outgoing payload entries.
+         * The default is {@value DEFAULT_MAX_OUTGOING_PAYLOAD_ENTRIES}.
+         * <p/>
+         * If the number of entries exceeds this threshold,
+         * printers should truncate it.
+         *
+         * @param maxOutgoingPayloadEntries the maximum number of printed outgoing payload entries.
+         * @throws IllegalArgumentException if the value is not > 0, or {@value StatementFormatterLimits#UNLIMITED} (unlimited).
+         */
+        public Builder withMaxOutgoingPayloadEntries(int maxOutgoingPayloadEntries) {
+            if (maxOutgoingPayloadEntries <= 0 && maxOutgoingPayloadEntries != StatementFormatterLimits.UNLIMITED)
+                throw new IllegalArgumentException("Invalid maxOutgoingPayloadEntries, should be > 0 or -1 (unlimited), got " + maxOutgoingPayloadEntries);
+            this.maxOutgoingPayloadEntries = maxOutgoingPayloadEntries;
+            return this;
+        }
+
+        /**
+         * Sets the maximum length, in bytes, allowed for a single outgoing payload value.
+         * The default is {@value DEFAULT_MAX_OUTGOING_PAYLOAD_VALUE_LENGTH}.
+         * <p/>
+         * If the payload value length in bytes exceeds this threshold,
+         * printers should truncate it.
+         *
+         * @param maxOutgoingPayloadValueLength the maximum length, in bytes, allowed for a single outgoing payload value.
+         * @throws IllegalArgumentException if the value is not > 0, or {@value StatementFormatterLimits#UNLIMITED} (unlimited).
+         */
+        public Builder withMaxOutgoingPayloadValueLength(int maxOutgoingPayloadValueLength) {
+            if (maxOutgoingPayloadValueLength <= 0 && maxOutgoingPayloadValueLength != StatementFormatterLimits.UNLIMITED)
+                throw new IllegalArgumentException("Invalid maxOutgoingPayloadValueLength, should be > 0 or -1 (unlimited), got " + maxOutgoingPayloadValueLength);
+            this.maxOutgoingPayloadValueLength = maxOutgoingPayloadValueLength;
+            return this;
+        }
+
+        /**
          * Build the {@link StatementFormatter} instance.
          *
          * @return the {@link StatementFormatter} instance.
@@ -1485,10 +1068,12 @@ public final class StatementFormatter {
         public StatementFormatter build() {
             StatementPrinterRegistry registry = new StatementPrinterRegistry();
             registerDefaultPrinters(registry);
-            for (StatementPrinter printer : printers) {
+            for (StatementPrinter<?> printer : printers) {
                 registry.register(printer);
             }
-            return new StatementFormatter(registry, limits, symbols);
+            StatementFormatterLimits limits = new StatementFormatterLimits(
+                    maxQueryStringLength, maxBoundValueLength, maxBoundValues, maxInnerStatements, maxOutgoingPayloadEntries, maxOutgoingPayloadValueLength);
+            return new StatementFormatter(registry, limits);
         }
 
         private void registerDefaultPrinters(StatementPrinterRegistry registry) {
@@ -1506,12 +1091,10 @@ public final class StatementFormatter {
 
     private final StatementPrinterRegistry printerRegistry;
     private final StatementFormatterLimits limits;
-    private final StatementFormatterSymbols symbols;
 
-    private StatementFormatter(StatementPrinterRegistry printerRegistry, StatementFormatterLimits limits, StatementFormatterSymbols symbols) {
+    private StatementFormatter(StatementPrinterRegistry printerRegistry, StatementFormatterLimits limits) {
         this.printerRegistry = printerRegistry;
         this.limits = limits;
-        this.symbols = symbols;
     }
 
     /**
@@ -1530,7 +1113,7 @@ public final class StatementFormatter {
         try {
             StatementPrinter<? super S> printer = printerRegistry.findPrinter(statement);
             assert printer != null : "Could not find printer for statement class " + statement.getClass();
-            StatementWriter out = new StatementWriter(new StringBuilder(), printerRegistry, limits, symbols, protocolVersion, codecRegistry);
+            StatementWriter out = new StatementWriter(new StringBuilder(), printerRegistry, limits, protocolVersion, codecRegistry);
             printer.print(statement, out, verbosity);
             return out.toString().trim();
         } catch (RuntimeException e) {

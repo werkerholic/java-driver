@@ -15,7 +15,6 @@
  */
 package com.datastax.driver.core;
 
-import com.datastax.driver.core.StatementFormatter.StatementFormatterLimits;
 import com.datastax.driver.core.utils.Bytes;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
@@ -263,7 +262,7 @@ public class StatementFormatterTest {
     @Test(groups = "unit")
     public void should_truncate_query_string() throws Exception {
         StatementFormatter formatter = StatementFormatter.builder()
-                .withLimits(new StatementFormatterLimits().setMaxQueryStringLength(7))
+                .withMaxQueryStringLength(7)
                 .build();
         SimpleStatement statement = new SimpleStatement("123456789");
         String s = formatter.format(statement, EXTENDED, version, codecRegistry);
@@ -274,7 +273,7 @@ public class StatementFormatterTest {
     @Test(groups = "unit")
     public void should_not_truncate_query_string_when_unlimited() throws Exception {
         StatementFormatter formatter = StatementFormatter.builder()
-                .withLimits(new StatementFormatterLimits().setMaxQueryStringLength(UNLIMITED))
+                .withMaxQueryStringLength(UNLIMITED)
                 .build();
         String query = repeat("a", 5000);
         SimpleStatement statement = new SimpleStatement(query);
@@ -286,7 +285,7 @@ public class StatementFormatterTest {
     @Test(groups = "unit")
     public void should_not_print_more_bound_values_than_max() throws Exception {
         StatementFormatter formatter = StatementFormatter.builder()
-                .withLimits(new StatementFormatterLimits().setMaxBoundValues(2))
+                .withMaxBoundValues(2)
                 .build();
         SimpleStatement statement = new SimpleStatement("query", 0, 1, 2, 3);
         String s = formatter.format(statement, EXTENDED, version, codecRegistry);
@@ -297,7 +296,7 @@ public class StatementFormatterTest {
     @Test(groups = "unit")
     public void should_truncate_bound_value() throws Exception {
         StatementFormatter formatter = StatementFormatter.builder()
-                .withLimits(new StatementFormatterLimits().setMaxBoundValueLength(4))
+                .withMaxBoundValueLength(4)
                 .build();
         SimpleStatement statement = new SimpleStatement("query", "12345");
         String s = formatter.format(statement, EXTENDED, version, codecRegistry);
@@ -308,7 +307,7 @@ public class StatementFormatterTest {
     @Test(groups = "unit")
     public void should_truncate_bound_value_byte_buffer() throws Exception {
         StatementFormatter formatter = StatementFormatter.builder()
-                .withLimits(new StatementFormatterLimits().setMaxBoundValueLength(4))
+                .withMaxBoundValueLength(4)
                 .build();
         SimpleStatement statement = new SimpleStatement("query", Bytes.fromHexString("0xCAFEBABE"));
         String s = formatter.format(statement, EXTENDED, version, codecRegistry);
@@ -319,7 +318,8 @@ public class StatementFormatterTest {
     @Test(groups = "unit")
     public void should_truncate_inner_statements() throws Exception {
         StatementFormatter formatter = StatementFormatter.builder()
-                .withLimits(new StatementFormatterLimits().setMaxInnerStatements(2).setMaxBoundValues(2))
+                .withMaxInnerStatements(2)
+                .withMaxBoundValues(2)
                 .build();
         BatchStatement statement = new BatchStatement(BatchStatement.Type.UNLOGGED);
         Statement inner1 = newBoundStatementMock("SELECT * FROM t WHERE c1 = ? AND c2 = ? AND c3 = ?");
@@ -345,7 +345,7 @@ public class StatementFormatterTest {
     @Test(groups = "unit")
     public void should_not_print_more_payload_entries_than_max() throws Exception {
         StatementFormatter formatter = StatementFormatter.builder()
-                .withLimits(new StatementFormatterLimits().setMaxOutgoingPayloadEntries(2))
+                .withMaxOutgoingPayloadEntries(2)
                 .build();
         ImmutableMap<String, ByteBuffer> payload = ImmutableMap.<String, ByteBuffer>builder()
                 .put("foo", Bytes.fromHexString("0xCAFE"))
@@ -361,7 +361,7 @@ public class StatementFormatterTest {
     @Test(groups = "unit")
     public void should_truncate_payload_entry() throws Exception {
         StatementFormatter formatter = StatementFormatter.builder()
-                .withLimits(new StatementFormatterLimits().setMaxOutgoingPayloadValueLength(3))
+                .withMaxOutgoingPayloadValueLength(3)
                 .build();
         ImmutableMap<String, ByteBuffer> payload = ImmutableMap.<String, ByteBuffer>builder()
                 .put("foo", Bytes.fromHexString("0xCAFEBABE"))
@@ -397,7 +397,7 @@ public class StatementFormatterTest {
 
         @Override
         public void print(CustomStatement statement, StatementFormatter.StatementWriter out, StatementFormatter.StatementFormatVerbosity verbosity) {
-            out.getBuffer().append("This is a statement with a ");
+            out.append("This is a statement with a ");
             // also incidentally test multiple appends to the query string
             out.appendQueryStringFragment("QUERY");
             out.appendQueryStringFragment("STR");
@@ -410,7 +410,7 @@ public class StatementFormatterTest {
     public void should_use_custom_printer() throws Exception {
         CustomStatement statement = new CustomStatement();
         StatementFormatter formatter = StatementFormatter.builder()
-                .withLimits(new StatementFormatterLimits().setMaxQueryStringLength(5))
+                .withMaxQueryStringLength(5)
                 .addStatementPrinter(new CustomStatementPrinter()).build();
         String s = formatter.format(statement, EXTENDED, version, codecRegistry);
         assertThat(s)
@@ -423,7 +423,7 @@ public class StatementFormatterTest {
     public void should_log_all_parameter_types_simple_statements() throws Exception {
         String query = "UPDATE test SET c1 = ? WHERE pk = 42";
         StatementFormatter formatter = StatementFormatter.builder()
-                .withLimits(new StatementFormatterLimits().setMaxBoundValueLength(UNLIMITED))
+                .withMaxBoundValueLength(UNLIMITED)
                 .build();
         for (DataType type : dataTypes) {
             Object value = getFixedValue(type);
@@ -439,7 +439,7 @@ public class StatementFormatterTest {
     public void should_log_all_parameter_types_bound_statements() throws Exception {
         String query = "UPDATE test SET c1 = ? WHERE pk = 42";
         StatementFormatter formatter = StatementFormatter.builder()
-                .withLimits(new StatementFormatterLimits().setMaxBoundValueLength(UNLIMITED))
+                .withMaxBoundValueLength(UNLIMITED)
                 .build();
         for (DataType type : dataTypes) {
             Object value = getFixedValue(type);
