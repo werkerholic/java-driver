@@ -19,6 +19,7 @@ import com.datastax.driver.core.Responses.Result.Rows.Metadata;
 import com.datastax.driver.core.exceptions.*;
 import com.datastax.driver.core.utils.Bytes;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -383,6 +384,10 @@ class Responses {
                     EnumSet<Flag> flags = Flag.deserialize(body.readInt());
                     int columnCount = body.readInt();
 
+                    ByteBuffer state = null;
+                    if (flags.contains(Flag.HAS_MORE_PAGES))
+                        state = CBUtil.readValue(body);
+
                     MD5Digest resultMetadataId = null;
                     if (flags.contains(Flag.METADATA_CHANGED)) {
                         assert protocolVersion == ProtocolVersion.V5 : "METADATA_CHANGED flag is supported starting from v5";
@@ -397,10 +402,6 @@ class Responses {
                         for (int i = 0; i < pkCount; i++)
                             pkIndices[i] = (int) body.readShort();
                     }
-
-                    ByteBuffer state = null;
-                    if (flags.contains(Flag.HAS_MORE_PAGES))
-                        state = CBUtil.readValue(body);
 
                     if (flags.contains(Flag.NO_METADATA))
                         return new Metadata(resultMetadataId, columnCount, null, state, pkIndices);
